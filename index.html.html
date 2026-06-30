@@ -1,0 +1,1518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neuralia — Recovery for the Overstimulated</title>
+<meta name="description" content="Neuralia is a privacy-first Chrome extension that detects digital overstimulation — doomscrolling, compulsive tab-switching — and guides you through a 90-second recovery session. 100% local. No tracking.">
+<meta name="keywords" content="overstimulation, doomscrolling, digital wellbeing, focus extension, chrome extension, attention recovery, cognitive overload">
+<link rel="canonical" href="https://neuralia.app/">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Neuralia — Recovery for the Overstimulated">
+<meta property="og:description" content="A privacy-first Chrome extension that notices when you've gone too far and gives you a 90-second way back. 100% local. No tracking, no ads.">
+<meta property="og:url" content="https://neuralia.app/">
+<meta property="og:site_name" content="Neuralia">
+<meta property="og:image" content="https://neuralia.app/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Neuralia — Recovery for the Overstimulated">
+<meta name="twitter:description" content="A privacy-first Chrome extension that notices when you've gone too far and gives you a 90-second way back.">
+<meta name="twitter:image" content="https://neuralia.app/og-image.png">
+
+<!-- Structured data -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Neuralia",
+  "applicationCategory": "BrowserApplication",
+  "operatingSystem": "Chrome",
+  "description": "A privacy-first Chrome extension that detects digital overstimulation and guides users through a short recovery session to break compulsive browsing loops.",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  }
+}
+</script>
+<style>
+@font-face {
+  font-family: 'Open Sauce One';
+  font-weight: 700;
+  src: url('https://cdn.jsdelivr.net/gh/marcologous/Open-Sauce-Fonts@master/fonts/OpenSauceOne/OpenSauceOne-Bold.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Open Sauce One';
+  font-weight: 500;
+  src: url('https://cdn.jsdelivr.net/gh/marcologous/Open-Sauce-Fonts@master/fonts/OpenSauceOne/OpenSauceOne-Medium.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Open Sauce One';
+  font-weight: 400;
+  src: url('https://cdn.jsdelivr.net/gh/marcologous/Open-Sauce-Fonts@master/fonts/OpenSauceOne/OpenSauceOne-Regular.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Open Sauce Sans';
+  font-weight: 300;
+  src: url('https://cdn.jsdelivr.net/gh/marcologous/Open-Sauce-Fonts@master/fonts/OpenSauceSans/OpenSauceSans-Light.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Open Sauce Sans';
+  font-weight: 400;
+  src: url('https://cdn.jsdelivr.net/gh/marcologous/Open-Sauce-Fonts@master/fonts/OpenSauceSans/OpenSauceSans-Regular.ttf') format('truetype');
+}
+</style>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#07070a;
+  --bg2:#0d0d14;
+  --ink:#e8e4dc;
+  --soft:rgba(232,228,220,0.5);
+  --xsoft:rgba(232,228,220,0.18);
+  --xxsoft:rgba(232,228,220,0.07);
+  --rule:rgba(232,228,220,0.07);
+  --blue:#3a8add;
+  --violet:#7c5cbf;
+  --teal:#1d9e75;
+  --amber:#ef9f27;
+  --mono:'Open Sauce Sans','Helvetica Neue',sans-serif;
+  --serif:'Open Sauce One','Helvetica Neue',sans-serif;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--mono);font-size:14px;font-weight:300;line-height:1.65;overflow-x:hidden;letter-spacing:-.015em}
+
+/* grain overlay */
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;mix-blend-mode:overlay}
+
+/* global cursor glow that follows mouse */
+#cursor-glow{position:fixed;pointer-events:none;z-index:9998;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(124,92,191,0.06) 0%,rgba(58,138,221,0.03) 40%,transparent 70%);transform:translate(-50%,-50%);transition:opacity 0.4s;will-change:transform}
+
+/* reveal */
+.reveal{opacity:0;transform:translateY(20px);transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1)}
+.reveal.visible{opacity:1;transform:none}
+.d1{transition-delay:.1s}.d2{transition-delay:.2s}.d3{transition-delay:.3s}.d4{transition-delay:.4s}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:1000;display:flex;justify-content:space-between;align-items:center;padding:20px 52px;border-bottom:.5px solid var(--rule);background:rgba(7,7,10,.88);backdrop-filter:blur(20px)}
+.nav-logo{font-family:var(--serif);font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink)}
+.nav-links{display:flex;gap:32px}
+.nav-links a{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);text-decoration:none;transition:color .2s;font-weight:300}
+.nav-links a:hover{color:var(--ink)}
+.nav-cta{font-size:10px;letter-spacing:.14em;text-transform:uppercase;padding:9px 18px;border:.5px solid rgba(232,228,220,.2);color:var(--ink);text-decoration:none;transition:all .25s;font-weight:300}
+.nav-cta:hover{background:rgba(232,228,220,.06);border-color:rgba(232,228,220,.4)}
+
+/* ── HERO ── */
+.hero{height:100vh;max-height:980px;display:grid;grid-template-columns:1fr 1fr;position:relative;border-bottom:.5px solid var(--rule);padding-top:64px}
+.hero-left{padding:48px 56px;display:flex;flex-direction:column;justify-content:center;border-right:.5px solid var(--rule);position:relative;z-index:2;overflow:hidden}
+.hero-headline{font-family:var(--serif);font-size:clamp(34px,4.6vw,64px);font-weight:700;line-height:1.03;letter-spacing:-.05em;margin-bottom:24px;color:var(--ink)}
+.hero-sub{max-width:420px;margin-bottom:32px;display:flex;align-items:flex-start;gap:24px}
+.hero-sub-num{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:6px;
+  flex-shrink:0;
+  padding-top:2px;
+}
+.hero-sub-num-label{
+  font-family:var(--mono);
+  font-size:8px;
+  font-weight:400;
+  letter-spacing:.24em;
+  text-transform:uppercase;
+  color:var(--xsoft);
+  white-space:nowrap;
+  position:relative;
+  padding-left:14px;
+}
+.hero-sub-num-label::before{
+  content:'';
+  position:absolute;
+  left:0;top:50%;
+  width:7px;height:0.5px;
+  background:rgba(100,165,240,0.5);
+  transform:translateY(-50%);
+}
+.hero-sub-num-val{
+  font-family:var(--serif);
+  font-size:clamp(32px,3.8vw,46px);
+  font-weight:700;
+  letter-spacing:-.05em;
+  line-height:0.85;
+  color:var(--ink);
+  font-variant-numeric:tabular-nums;
+  text-shadow:0 0 50px rgba(100,165,240,0.35), 0 0 90px rgba(58,138,221,0.18);
+}
+.hero-sub-divider{
+  width:1px;
+  align-self:stretch;
+  background:linear-gradient(180deg,rgba(58,138,221,0.4),rgba(232,228,220,0.06) 80%);
+  flex-shrink:0;
+  margin-top:4px;
+}
+.hero-sub-body{
+  font-family:var(--serif);
+  font-size:14px;
+  font-weight:400;
+  font-style:italic;
+  color:rgba(232,228,220,0.62);
+  line-height:1.45;
+  letter-spacing:-.015em;
+  display:block;
+  padding-top:4px;
+}
+.btn-primary{display:inline-flex;align-items:center;gap:12px;padding:13px 26px;background:var(--ink);color:var(--bg);font-family:var(--mono);font-size:9px;font-weight:400;letter-spacing:.22em;text-transform:uppercase;text-decoration:none;border:none;cursor:pointer;transition:opacity .2s}
+.btn-primary:hover{opacity:.88}
+.hero-trust{font-size:9px;color:var(--xsoft);letter-spacing:.1em;margin-top:14px;font-weight:300}
+.hero-right{position:relative;display:flex;align-items:center;justify-content:center;background:var(--bg2);overflow:hidden;padding:32px}
+
+/* Hero orb card — same kinetic family as the section cards, larger, centered */
+.hero-orb-card{
+  width:100%;
+  max-width:420px;
+  aspect-ratio:1/1;
+  max-height:calc(100vh - 160px);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.hero-orb-inner{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  width:100%;
+  height:100%;
+  padding:28px;
+  position:relative;
+}
+/* Live readout — bottom corner, like an instrument panel */
+.hero-orb-readout{
+  position:absolute;
+  bottom:18px;
+  left:18px;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  z-index:5;
+}
+.hero-orb-readout-row{
+  display:flex;
+  align-items:baseline;
+  gap:8px;
+  font-family:var(--mono);
+}
+.hero-orb-readout-label{
+  font-size:8px;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:var(--xsoft);
+  font-weight:300;
+}
+.hero-orb-readout-val{
+  font-size:10px;
+  letter-spacing:.04em;
+  color:rgba(160,120,255,0.75);
+  font-weight:400;
+}
+
+/* Eyebrow gets a small pulsing dot to feel live */
+.hero-eyebrow{
+  font-size:9px;
+  letter-spacing:.24em;
+  text-transform:uppercase;
+  color:var(--xsoft);
+  margin-bottom:36px;
+  font-weight:400;
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+}
+.hero-eyebrow-dot{
+  width:5px;height:5px;border-radius:50%;
+  background:rgba(160,120,255,0.8);
+  box-shadow:0 0 8px rgba(160,120,255,0.6);
+  animation:eyebrow-pulse 2.4s ease-in-out infinite;
+  flex-shrink:0;
+}
+@keyframes eyebrow-pulse{0%,100%{opacity:.4;transform:scale(0.8)}50%{opacity:1;transform:scale(1.1)}}
+
+/* ══════════════════════════════════════
+   GEOMETRIC BREATHING ORB — hero
+   Each ring tier scales on Y independently
+   so the whole cluster reads as a sphere
+   inhaling and exhaling, not a flat pulse.
+   ══════════════════════════════════════ */
+@keyframes bo-breathe-boundary{
+  0%,100%{transform:scaleY(1) scaleX(1)}
+  50%{transform:scaleY(1.045) scaleX(0.985)}
+}
+@keyframes bo-breathe-mid{
+  0%,100%{transform:scaleY(1) scaleX(1)}
+  50%{transform:scaleY(1.07) scaleX(0.975)}
+}
+@keyframes bo-breathe-inner{
+  0%,100%{transform:scaleY(1) scaleX(1)}
+  50%{transform:scaleY(1.09) scaleX(0.96)}
+}
+@keyframes bo-breathe-core{
+  0%,100%{transform:scaleY(1) scaleX(1)}
+  50%{transform:scaleY(1.14) scaleX(0.94)}
+}
+@keyframes bo-core-pulse{
+  0%,100%{opacity:0.55;r:2.6}
+  50%{opacity:1;r:3.6}
+}
+.bo-boundary{ animation:bo-breathe-boundary 7.2s ease-in-out infinite; }
+.bo-mid{ animation:bo-breathe-mid 7.2s ease-in-out infinite; animation-delay:-0.4s; }
+.bo-inner{ animation:bo-breathe-inner 7.2s ease-in-out infinite; animation-delay:-0.8s; }
+.bo-core{ animation:bo-breathe-core 7.2s ease-in-out infinite; animation-delay:-1.2s; }
+
+/* Latitude rings — depth falloff: closer to equator = brighter,
+   closer to poles = dimmer, exactly like a real lit sphere */
+.bo-lat{
+  fill:none;
+  stroke:rgba(160,120,255,0.4);
+  stroke-width:0.75;
+  opacity:0;
+  transform-origin:210px 210px;
+}
+.bo-lat:nth-child(1){ stroke-opacity:0.65; animation:bo-breathe-lat-1 7.2s ease-in-out infinite; animation-delay:-0.2s; }
+.bo-lat:nth-child(2){ stroke-opacity:0.52; animation:bo-breathe-lat-2 7.2s ease-in-out infinite; animation-delay:-0.5s; }
+.bo-lat:nth-child(3){ stroke-opacity:0.34; animation:bo-breathe-lat-1 7.2s ease-in-out infinite; animation-delay:-0.9s; }
+.bo-lat:nth-child(4){ stroke-opacity:0.2;  animation:bo-breathe-lat-2 7.2s ease-in-out infinite; animation-delay:-1.3s; }
+.bo-lat:nth-child(5){ stroke-opacity:0.65; animation:bo-breathe-lat-1 7.2s ease-in-out infinite; animation-delay:-0.2s; }
+.bo-lat:nth-child(6){ stroke-opacity:0.52; animation:bo-breathe-lat-2 7.2s ease-in-out infinite; animation-delay:-0.5s; }
+.bo-lat:nth-child(7){ stroke-opacity:0.34; animation:bo-breathe-lat-1 7.2s ease-in-out infinite; animation-delay:-0.9s; }
+.bo-lat:nth-child(8){ stroke-opacity:0.2;  animation:bo-breathe-lat-2 7.2s ease-in-out infinite; animation-delay:-1.3s; }
+
+@keyframes bo-breathe-lat-1{
+  0%,100%{transform:scaleY(1) scaleX(1)}
+  50%{transform:scaleY(1.12) scaleX(0.97)}
+}
+@keyframes bo-breathe-lat-2{
+  0%,100%{transform:scaleY(1) scaleX(1)}
+  50%{transform:scaleY(0.88) scaleX(1.02)}
+}
+
+/* ── SECTION COMMONS ── */
+section{border-top:.5px solid var(--rule)}
+.s-header{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:22px 52px;
+  border-bottom:.5px solid var(--rule);
+  position:relative;overflow:hidden;
+}
+/* Large ghost number — purely atmospheric, sits behind */
+.s-num{
+  position:absolute;right:52px;
+  font-family:var(--serif);
+  font-size:clamp(60px,8vw,110px);
+  font-weight:700;
+  color:rgba(232,228,220,0.04);
+  letter-spacing:-.06em;
+  line-height:1;
+  top:50%;transform:translateY(-50%);
+  pointer-events:none;
+  user-select:none;
+}
+/* Section label — now a real heading, visible and purposeful */
+.s-label{
+  font-family:var(--serif);
+  font-size:clamp(13px,1.4vw,18px);
+  font-weight:700;
+  letter-spacing:.02em;
+  text-transform:uppercase;
+  color:var(--ink);
+  position:relative;z-index:1;
+}
+
+/* ══════════════════════════════════════
+   KINETIC GLASS CARD — DialedWeb-inspired
+   - 3D tilt on mouse enter
+   - Internal shimmer light follows cursor
+   - Accent glow pulses on hover
+   - Edge highlight top-left bevel
+   ══════════════════════════════════════ */
+.gcard{
+  position:relative;
+  border-radius:18px;
+  border:.5px solid rgba(232,228,220,0.1);
+  background:linear-gradient(145deg,rgba(232,228,220,0.055) 0%,rgba(232,228,220,0.018) 50%,rgba(0,0,0,0.05) 100%);
+  backdrop-filter:blur(24px);
+  -webkit-backdrop-filter:blur(24px);
+  overflow:hidden;
+  transform-style:preserve-3d;
+  transition:border-color .35s,box-shadow .35s;
+  will-change:transform;
+}
+
+/* top-left bevel highlight (static, like real glass) */
+.gcard::before{
+  content:'';
+  position:absolute;inset:0;
+  border-radius:inherit;
+  background:linear-gradient(135deg,rgba(232,228,220,0.1) 0%,rgba(232,228,220,0.03) 25%,transparent 55%);
+  pointer-events:none;
+  z-index:1;
+}
+
+/* shimmer blob — follows cursor via JS */
+.gcard-shimmer{
+  position:absolute;
+  width:180px;height:180px;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(232,228,220,0.11) 0%,transparent 70%);
+  pointer-events:none;
+  z-index:2;
+  transform:translate(-50%,-50%);
+  transition:opacity .3s;
+  opacity:0;
+}
+
+/* accent top-edge glow line */
+.gcard-edge{
+  position:absolute;top:0;left:0;right:0;height:1px;
+  border-radius:18px 18px 0 0;
+  z-index:3;
+  pointer-events:none;
+}
+.gcard--violet .gcard-edge{background:linear-gradient(90deg,rgba(124,92,191,0),rgba(124,92,191,0.9) 30%,rgba(124,92,191,0.4) 70%,rgba(124,92,191,0))}
+.gcard--blue   .gcard-edge{background:linear-gradient(90deg,rgba(58,138,221,0),rgba(58,138,221,0.9) 30%,rgba(58,138,221,0.4) 70%,rgba(58,138,221,0))}
+.gcard--teal   .gcard-edge{background:linear-gradient(90deg,rgba(29,158,117,0),rgba(29,158,117,0.9) 30%,rgba(29,158,117,0.4) 70%,rgba(29,158,117,0))}
+.gcard--amber  .gcard-edge{background:linear-gradient(90deg,rgba(239,159,39,0),rgba(239,159,39,0.9) 30%,rgba(239,159,39,0.4) 70%,rgba(239,159,39,0))}
+
+/* accent corner glow that breathes */
+.gcard--violet::after{content:'';position:absolute;bottom:-40px;right:-40px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(124,92,191,0.18) 0%,transparent 70%);pointer-events:none;animation:breathe-v 4s ease-in-out infinite;z-index:0}
+.gcard--blue::after  {content:'';position:absolute;bottom:-40px;right:-40px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(58,138,221,0.15) 0%,transparent 70%);pointer-events:none;animation:breathe-b 4.5s ease-in-out infinite;z-index:0}
+.gcard--teal::after  {content:'';position:absolute;bottom:-40px;right:-40px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(29,158,117,0.15) 0%,transparent 70%);pointer-events:none;animation:breathe-t 5s ease-in-out infinite;z-index:0}
+.gcard--amber::after {content:'';position:absolute;bottom:-40px;right:-40px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(239,159,39,0.15) 0%,transparent 70%);pointer-events:none;animation:breathe-a 3.8s ease-in-out infinite;z-index:0}
+
+@keyframes breathe-v{0%,100%{opacity:.5;transform:scale(1)}50%{opacity:1;transform:scale(1.2)}}
+@keyframes breathe-b{0%,100%{opacity:.4;transform:scale(1)}50%{opacity:.9;transform:scale(1.3)}}
+@keyframes breathe-t{0%,100%{opacity:.45;transform:scale(1)}50%{opacity:.95;transform:scale(1.15)}}
+@keyframes breathe-a{0%,100%{opacity:.5;transform:scale(1)}50%{opacity:1;transform:scale(1.25)}}
+
+/* card content layer above pseudo elements */
+.gcard-inner{position:relative;z-index:4;height:100%}
+
+/* hover: border lights up in accent color */
+.gcard--violet:hover{border-color:rgba(124,92,191,0.35);box-shadow:0 0 40px -10px rgba(124,92,191,0.2),inset 0 0 30px rgba(124,92,191,0.04)}
+.gcard--blue:hover  {border-color:rgba(58,138,221,0.35);box-shadow:0 0 40px -10px rgba(58,138,221,0.2),inset 0 0 30px rgba(58,138,221,0.04)}
+.gcard--teal:hover  {border-color:rgba(29,158,117,0.35);box-shadow:0 0 40px -10px rgba(29,158,117,0.2),inset 0 0 30px rgba(29,158,117,0.04)}
+.gcard--amber:hover {border-color:rgba(239,159,39,0.35);box-shadow:0 0 40px -10px rgba(239,159,39,0.2),inset 0 0 30px rgba(239,159,39,0.04)}
+
+/* ── MECHANISM DIAGRAM ── */
+.mech-wrap{padding:48px 52px 56px;background:var(--bg2)}
+@media(max-width:900px){.mech-wrap{padding:28px 20px 36px}}
+
+/* ── PROBLEM GRID ── */
+.problem-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;padding:44px 52px 60px}
+.credibility-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;padding:36px 52px 60px}
+.cred-note{padding:0 52px 8px;max-width:640px;font-size:13px;color:rgba(232,228,220,0.48);line-height:1.9;font-weight:300}
+.p-cell{padding:40px 34px 44px}
+/* index number — ghost, compositional */
+.p-num{font-family:var(--serif);font-size:11px;letter-spacing:.08em;color:rgba(232,228,220,0.12);display:block;margin-bottom:24px;font-weight:500}
+.p-diagram{height:180px;display:flex;align-items:center;justify-content:center;margin-bottom:32px}
+/* card title: serif, no caps, generous size */
+.p-title{font-family:var(--serif);font-size:19px;letter-spacing:-.03em;color:var(--ink);margin-bottom:14px;font-weight:500;line-height:1.2}
+/* body: optical size for reading, not scanning */
+.p-body{font-size:13px;color:rgba(232,228,220,0.48);line-height:1.9;font-weight:300;letter-spacing:.005em}
+
+/* ── PHASES ── */
+.phases{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;padding:44px 52px 60px}
+.ph-cell{padding:40px 30px 44px}
+/* Roman numeral — enormous, near-invisible, purely structural */
+.ph-num{font-family:var(--serif);font-size:56px;font-weight:700;color:rgba(232,228,220,0.05);line-height:1;margin-bottom:20px;letter-spacing:-.06em}
+/* Phase name — this is the hero of the card; serif, title-case, generous */
+.ph-name{font-family:var(--serif);font-size:24px;font-weight:500;letter-spacing:-.03em;line-height:1.1;margin-bottom:8px;color:var(--ink)}
+/* Duration — monospace tag, very quiet */
+.ph-dur{font-family:var(--mono);font-size:9px;color:rgba(232,228,220,0.22);margin-bottom:20px;font-weight:300;letter-spacing:.1em}
+.ph-body{font-size:13px;color:rgba(232,228,220,0.48);line-height:1.9;font-weight:300;letter-spacing:.005em}
+/* Quoted copy — slightly warmer, feels handwritten almost */
+.ph-copy{font-family:var(--serif);font-weight:400;font-size:14px;color:rgba(232,228,220,0.38);margin-top:20px;padding-top:20px;border-top:.5px solid rgba(232,228,220,.06);line-height:1.55;letter-spacing:-.01em;font-style:italic}
+
+/* ── SCIENCE ── */
+.sci-wrap{padding:56px 52px;display:grid;grid-template-columns:1fr 1.6fr;gap:56px;align-items:start}
+/* Left column headline — large, editorial weight */
+.sci-title{font-family:var(--serif);font-size:clamp(38px,4.2vw,60px);font-weight:700;line-height:1.02;margin-bottom:22px;letter-spacing:-.05em}
+.sci-body{font-size:13px;color:rgba(232,228,220,0.48);line-height:1.9;font-weight:300;max-width:300px;letter-spacing:.005em}
+.sci-cards{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.sci-card{padding:30px 26px}
+/* Card label: serif, title-case — more like a chapter title */
+.sci-item-label{font-family:var(--serif);font-size:17px;letter-spacing:-.025em;color:var(--ink);margin-bottom:12px;font-weight:500;line-height:1.2}
+.sci-item-body{font-size:12.5px;color:rgba(232,228,220,0.48);line-height:1.9;font-weight:300;letter-spacing:.005em}
+/* Citation: footnote style — monospace, ruled top, readable but subordinate */
+.sci-item-src{font-family:var(--mono);font-size:9.5px;color:rgba(232,228,220,0.28);margin-top:14px;padding-top:12px;border-top:.5px solid rgba(232,228,220,0.07);letter-spacing:.02em;line-height:1.7;font-weight:300}
+
+/* ── CALM MODE ── */
+.calm-wrap{padding:56px 52px;display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start}
+.calm-headline{font-family:var(--serif);font-size:clamp(28px,3vw,46px);font-weight:700;line-height:1.05;margin-bottom:22px;letter-spacing:-.04em}
+.calm-body{font-size:13px;color:rgba(232,228,220,0.48);line-height:1.9;font-weight:300;letter-spacing:.005em}
+.site-pills{display:flex;flex-wrap:wrap;gap:10px}
+.site-pill{font-size:10px;letter-spacing:.06em;padding:8px 18px;border:.5px solid rgba(232,228,220,.08);color:rgba(232,228,220,0.4);border-radius:20px;font-weight:300;background:rgba(232,228,220,.02);transition:all .3s;cursor:default}
+.site-pill.active{border-color:rgba(58,138,221,.4);color:rgba(140,185,240,.85);background:rgba(58,138,221,.06);box-shadow:0 0 16px -4px rgba(58,138,221,0.18)}
+
+/* ── QUOTE BREAKS ── */
+.quote-break{
+  position:relative;
+  padding:64px 52px;
+  border-top:.5px solid var(--rule);
+  border-bottom:.5px solid var(--rule);
+  overflow:hidden;
+  background:var(--bg2);
+  display:flex;
+  align-items:center;
+  gap:64px;
+}
+/* Ambient gradient orb behind each quote */
+.quote-break::before{
+  content:'';
+  position:absolute;
+  width:60vw;height:60vw;
+  border-radius:50%;
+  pointer-events:none;
+  opacity:0;
+  transition:opacity 1.2s;
+  top:50%;left:50%;transform:translate(-50%,-50%);
+}
+#qb1::before{background:radial-gradient(circle,rgba(124,92,191,0.07) 0%,transparent 65%)}
+#qb2::before{background:radial-gradient(circle,rgba(58,138,221,0.07) 0%,transparent 65%)}
+.quote-break.qb-active::before{opacity:1}
+
+/* neuron illustration — faint, decorative, sits behind quote */
+.qb-neuron{
+  flex-shrink:0;
+  width:180px;height:180px;
+  opacity:0;
+  transition:opacity 1.4s ease;
+}
+.quote-break.qb-active .qb-neuron{opacity:1}
+
+.qb-text{
+  display:flex;
+  flex-wrap:wrap;
+  gap:0.12em 0.28em;
+  max-width:680px;
+  list-style:none;border:none;padding:0;margin:0;
+}
+/* Each word revealed — smaller, more refined */
+.qb-word{
+  display:inline-block;
+  font-family:var(--serif);
+  font-size:clamp(18px,2.6vw,36px);
+  font-weight:400;
+  line-height:1.25;
+  letter-spacing:-.03em;
+  color:var(--ink);
+  clip-path:inset(0 0 105% 0);
+  transform:translateY(0.2em);
+  transition:clip-path 0.65s cubic-bezier(.16,1,.3,1), transform 0.65s cubic-bezier(.16,1,.3,1), color 0.5s, opacity 0.5s;
+  opacity:0;
+  will-change:clip-path,transform;
+}
+.qb-word.visible{
+  clip-path:inset(0 0 0% 0);
+  transform:translateY(0);
+  opacity:1;
+}
+.qb-word.qb-accent{ color:var(--ink); }
+.qb-word.visible.qb-accent{
+  text-shadow:0 0 60px rgba(124,92,191,0.2),0 0 120px rgba(58,138,221,0.1);
+}
+.qb-word.qb-dim{ }
+.qb-word.visible.qb-dim{ color:rgba(232,228,220,0.35); }
+
+/* ── MANIFESTO ── */
+.manifesto{padding:0 52px}
+.manifesto-line{
+  display:grid;
+  grid-template-columns:40px 1fr auto;
+  align-items:center;
+  gap:24px;
+  padding:22px 0;
+  border-bottom:.5px solid var(--rule);
+  cursor:default;
+  opacity:0;
+  transition:opacity 0.9s cubic-bezier(.16,1,.3,1), transform 0.9s cubic-bezier(.16,1,.3,1);
+}
+.manifesto-line:last-child{border-bottom:none}
+.manifesto-line.from-left{transform:translateX(-48px)}
+.manifesto-line.from-right{transform:translateX(48px)}
+.manifesto-line.visible{opacity:1;transform:translateX(0)}
+.m-index{
+  font-family:var(--mono);
+  font-size:9px;
+  letter-spacing:.16em;
+  color:var(--xsoft);
+  font-weight:300;
+  text-align:right;
+  line-height:1;
+}
+.m-text{
+  font-family:var(--serif);
+  font-size:13px;
+  font-weight:400;
+  color:rgba(232,228,220,0.6);
+  line-height:1.6;
+  letter-spacing:-.01em;
+  transition:color .4s;
+}
+.manifesto-line:hover .m-text{color:var(--ink)}
+.m-tag{
+  font-family:var(--mono);
+  font-size:9px;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  color:var(--xsoft);
+  font-weight:300;
+  white-space:nowrap;
+  border:.5px solid var(--rule);
+  padding:4px 9px;
+  border-radius:20px;
+  transition:color .4s, border-color .4s;
+}
+.manifesto-line:hover .m-tag{
+  color:rgba(232,228,220,0.35);
+  border-color:rgba(232,228,220,0.12);
+}
+
+/* ── CTA ── */
+.cta-wrap{display:grid;grid-template-columns:1fr 1fr;min-height:48vh}
+.cta-left{padding:80px 52px;display:flex;flex-direction:column;justify-content:space-between;border-right:.5px solid var(--rule)}
+.cta-headline{font-family:var(--serif);font-size:clamp(32px,3.6vw,58px);font-weight:700;line-height:1.05;letter-spacing:-.045em}
+.cta-bottom{display:flex;flex-direction:column;gap:16px;max-width:400px}
+.email-row{display:flex;border:.5px solid rgba(232,228,220,.16)}
+.email-input{flex:1;background:transparent;border:none;outline:none;font-family:var(--mono);font-size:13px;color:var(--ink);padding:14px 18px;font-weight:300;letter-spacing:-.01em}
+.email-input::placeholder{color:rgba(232,228,220,0.2)}
+.email-btn{background:var(--ink);color:var(--bg);border:none;padding:14px 22px;font-family:var(--mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;transition:opacity .2s;font-weight:400}
+.email-btn:hover{opacity:.85}
+.cta-note{font-size:10px;color:rgba(232,228,220,0.2);letter-spacing:.04em;line-height:2;font-weight:300}
+.cta-right{padding:80px 52px;background:var(--bg2);display:flex;flex-direction:column;justify-content:center}
+
+/* ── FOOTER ── */
+footer{display:flex;justify-content:space-between;align-items:center;padding:22px 52px;border-top:.5px solid var(--rule)}
+.footer-l{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:rgba(232,228,220,0.18);font-weight:300}
+.footer-r{font-size:9px;color:rgba(232,228,220,0.18);letter-spacing:.06em;font-weight:300}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  nav{padding:16px 24px}.nav-links{display:none}
+  .hero{grid-template-columns:1fr;height:auto;max-height:none}.hero-left{padding:64px 24px 40px;border-right:none;border-bottom:.5px solid var(--rule)}.hero-right{min-height:60vw}.hero-orb-card{max-height:none}
+  .problem-grid{grid-template-columns:1fr;padding:24px}
+  .phases{grid-template-columns:1fr 1fr;padding:24px;gap:12px}
+  .sci-wrap{grid-template-columns:1fr;padding:28px;gap:28px}
+  .sci-cards{grid-template-columns:1fr}
+  .calm-wrap{grid-template-columns:1fr;padding:28px;gap:28px}
+  .cta-wrap{grid-template-columns:1fr}
+  .cta-left{padding:52px 28px;border-right:none;border-bottom:.5px solid var(--rule)}
+  .cta-right{padding:52px 28px}
+  .manifesto{padding:0 28px}
+  footer,.s-header{padding-left:24px;padding-right:24px}
+}
+@media(max-width:560px){
+  .phases{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div id="cursor-glow"></div>
+
+<nav>
+  <div class="nav-logo">Neuralia</div>
+  <div class="nav-links">
+    <a href="#problem">The problem</a>
+    <a href="#reset">Reset session</a>
+    <a href="#science">Science</a>
+    <a href="#waitlist">Early access</a>
+  </div>
+  <a href="#waitlist" class="nav-cta">Join waitlist</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero" style="border-top:none" id="hero">
+  <div class="hero-left">
+    <div class="hero-eyebrow reveal"><span class="hero-eyebrow-dot"></span>Fig. 01 &nbsp;/&nbsp; The moment of return</div>
+    <h1 class="hero-headline reveal d1">You already know<br>when you've gone<br>too far.</h1>
+    <div class="hero-sub reveal d2">
+      <span class="hero-sub-num">
+        <span class="hero-sub-num-label">Recovery window</span>
+        <span class="hero-sub-num-val">90s</span>
+      </span>
+      <span class="hero-sub-divider"></span>
+      <span class="hero-sub-body">That's all the space between<br>the loop and your way out.</span>
+    </div>
+    <div class="reveal d3">
+      <div class="email-row" style="max-width:380px">
+        <input class="email-input" type="email" placeholder="your@email.com" id="hero-email-input">
+        <button class="email-btn" id="hero-email-btn">Get early access</button>
+      </div>
+      <div class="hero-trust">Free Chrome extension &nbsp;·&nbsp; 100% local, nothing leaves your browser &nbsp;·&nbsp; No spam, ever</div>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="gcard gcard--violet hero-orb-card" id="hero-orb-card">
+      <div class="gcard-edge"></div>
+      <div class="gcard-shimmer"></div>
+      <div class="gcard-inner hero-orb-inner">
+        <svg id="breathing-orb-svg" viewBox="0 0 420 420" style="width:100%;max-width:380px;position:relative;z-index:1">
+          <defs>
+            <style>
+              .bo-ring{fill:none;stroke:rgba(160,120,255,0.42);stroke-width:0.6;opacity:0;transform-origin:210px 210px}
+              .bo-ring-dim{stroke:rgba(160,120,255,0.22)}
+            </style>
+            <filter id="glow-core"><feGaussianBlur stdDeviation="2.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+            <filter id="glow-soft"><feGaussianBlur stdDeviation="1" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          </defs>
+
+          <!-- Sphere built from concentric ellipses at multiple rotation angles —
+               each ring's eccentricity animates so the cluster pulses between
+               a flat disc and a fuller sphere, reading as geometric breathing -->
+          <g id="bo-sphere">
+            <!-- Outer boundary ring — the "90 sec" recovery window -->
+            <ellipse class="bo-ring bo-boundary" cx="210" cy="210" rx="172" ry="135"/>
+            <ellipse class="bo-ring bo-boundary" cx="210" cy="210" rx="172" ry="135" transform="rotate(60 210 210)"/>
+            <ellipse class="bo-ring bo-boundary" cx="210" cy="210" rx="172" ry="135" transform="rotate(120 210 210)"/>
+
+            <!-- Mid rings -->
+            <ellipse class="bo-ring bo-mid" cx="210" cy="210" rx="138" ry="108" transform="rotate(30 210 210)"/>
+            <ellipse class="bo-ring bo-mid" cx="210" cy="210" rx="138" ry="108" transform="rotate(90 210 210)"/>
+            <ellipse class="bo-ring bo-mid" cx="210" cy="210" rx="138" ry="108" transform="rotate(150 210 210)"/>
+
+            <!-- Inner rings -->
+            <ellipse class="bo-ring bo-inner" cx="210" cy="210" rx="100" ry="78" transform="rotate(15 210 210)"/>
+            <ellipse class="bo-ring bo-inner" cx="210" cy="210" rx="100" ry="78" transform="rotate(75 210 210)"/>
+            <ellipse class="bo-ring bo-inner" cx="210" cy="210" rx="100" ry="78" transform="rotate(135 210 210)"/>
+
+            <!-- Core ring cluster — tight, near the center -->
+            <ellipse class="bo-ring bo-core" cx="210" cy="210" rx="58" ry="44" transform="rotate(45 210 210)"/>
+            <ellipse class="bo-ring bo-core" cx="210" cy="210" rx="58" ry="44" transform="rotate(105 210 210)"/>
+
+            <!-- Equator line -->
+            <ellipse class="bo-ring bo-ring-dim" cx="210" cy="210" rx="172" ry="6"/>
+
+            <!-- ═══ LATITUDE RINGS — horizontal cross-sections at varying
+                 heights, narrowing toward the poles. This is what reads
+                 as true Z-axis depth rather than just longitude lines. ═══ -->
+            <g id="bo-latitudes">
+              <!-- Upper hemisphere, widest near equator, narrowing up -->
+              <ellipse class="bo-lat" cx="210" cy="148" rx="162" ry="20"/>
+              <ellipse class="bo-lat" cx="210" cy="100" rx="132" ry="16"/>
+              <ellipse class="bo-lat" cx="210" cy="62"  rx="86"  ry="10"/>
+              <ellipse class="bo-lat" cx="210" cy="38"  rx="42"  ry="5"/>
+
+              <!-- Lower hemisphere, mirrored -->
+              <ellipse class="bo-lat" cx="210" cy="272" rx="162" ry="20"/>
+              <ellipse class="bo-lat" cx="210" cy="320" rx="132" ry="16"/>
+              <ellipse class="bo-lat" cx="210" cy="358" rx="86"  ry="10"/>
+              <ellipse class="bo-lat" cx="210" cy="382" rx="42"  ry="5"/>
+            </g>
+          </g>
+
+          <!-- 90 sec spoke — vertical line through the sphere, labelled -->
+          <line id="bo-spoke" x1="210" y1="38" x2="210" y2="382" stroke="rgba(160,120,255,0.5)" stroke-width="0.6" opacity="0"/>
+          <text id="bo-label-90" x="210" y="26" text-anchor="middle" font-family="'Space Mono',monospace" font-size="10" fill="rgba(200,180,255,0.65)" letter-spacing="1.5" opacity="0">90 sec</text>
+
+          <!-- boundary label on outer ring -->
+          <text id="bo-label-boundary" x="340" y="172" text-anchor="start" font-family="'Space Mono',monospace" font-size="9" fill="rgba(160,120,255,0.4)" letter-spacing="1" opacity="0">boundary</text>
+
+          <!-- Core dot — the orb's nucleus, pulses with the breathing cycle -->
+          <circle id="bo-core-dot" cx="210" cy="210" r="3" fill="rgba(210,195,255,0.9)" filter="url(#glow-core)" opacity="0"/>
+
+          <!-- Tick marks around the outermost boundary -->
+          <g id="bo-ticks" stroke="rgba(160,120,255,0.25)" stroke-width="0.5" opacity="0">
+            <line x1="210" y1="36" x2="210" y2="44"/>
+            <line x1="270" y1="46" x2="266" y2="53"/>
+            <line x1="320" y1="78" x2="314" y2="83"/>
+            <line x1="362" y1="130" x2="354" y2="133"/>
+            <line x1="380" y1="210" x2="372" y2="210"/>
+            <line x1="362" y1="290" x2="354" y2="287"/>
+            <line x1="320" y1="342" x2="314" y2="337"/>
+            <line x1="270" y1="374" x2="266" y2="367"/>
+            <line x1="210" y1="384" x2="210" y2="376"/>
+            <line x1="150" y1="374" x2="154" y2="367"/>
+            <line x1="100" y1="342" x2="106" y2="337"/>
+            <line x1="58"  y1="290" x2="66"  y2="287"/>
+            <line x1="40"  y1="210" x2="48"  y2="210"/>
+            <line x1="58"  y1="130" x2="66"  y2="133"/>
+            <line x1="100" y1="78"  x2="106" y2="83"/>
+            <line x1="150" y1="46"  x2="154" y2="53"/>
+          </g>
+        </svg>
+        <div class="hero-orb-readout">
+          <div class="hero-orb-readout-row"><span class="hero-orb-readout-label">state</span><span class="hero-orb-readout-val" id="hero-readout-state">calm</span></div>
+          <div class="hero-orb-readout-row"><span class="hero-orb-readout-label">field</span><span class="hero-orb-readout-val">stable</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CREDIBILITY -->
+<section id="credibility">
+  <div class="s-header"><span class="s-label">Why it's built this way</span><span class="s-num">01.5</span></div>
+  <div class="cred-note reveal">Neuralia is in active development, built by a solo founder and currently in private beta. No fake numbers, no inflated claims — here's what's actually true right now.</div>
+  <div class="credibility-grid">
+    <div class="gcard gcard--violet reveal p-cell">
+      <div class="gcard-edge"></div>
+      <div class="gcard-shimmer"></div>
+      <div class="gcard-inner">
+        <div class="p-title">Built on real research</div>
+        <div class="p-body">Every intervention is grounded in published cognitive science — variable ratio reinforcement, attention residue, window of tolerance — not invented wellness jargon. Sources cited in the Science section below.</div>
+      </div>
+    </div>
+    <div class="gcard gcard--blue reveal d1 p-cell">
+      <div class="gcard-edge"></div>
+      <div class="gcard-shimmer"></div>
+      <div class="gcard-inner">
+        <div class="p-title">Privacy by architecture</div>
+        <div class="p-body">All detection runs locally in your browser. There's no server collecting your scroll or tab data — not "we promise not to look," but nothing to look at in the first place.</div>
+      </div>
+    </div>
+    <div class="gcard gcard--teal reveal d2 p-cell">
+      <div class="gcard-edge"></div>
+      <div class="gcard-shimmer"></div>
+      <div class="gcard-inner">
+        <div class="p-title">Built in the open</div>
+        <div class="p-body">Early access means exactly that — you'll be testing alongside the founder, not user #100,000. Feedback shapes what ships next. No dark patterns, no engagement tricks, ever.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEM -->
+<section id="problem">
+  <div class="s-header"><span class="s-label">The problem</span><span class="s-num">02</span></div>
+  <div class="problem-grid">
+
+    <div class="gcard gcard--violet reveal p-cell">
+      <div class="gcard-edge"></div>
+      <div class="gcard-shimmer"></div>
+      <div class="gcard-inner">
+        <span class="p-num">01.</span>
+        <div class="p-diagram">
+          <svg viewBox="0 0 260 175" width="100%" style="max-width:280px">
+            <!-- Loop arc -->
+            <path d="M130 28 A62 62 0 1 1 68 90" fill="none" stroke="rgba(124,92,191,0.6)" stroke-width="1.2"/>
+            <!-- Arrowhead -->
+            <polygon points="68,90 56,78 78,76" fill="rgba(124,92,191,0.6)"/>
+            <!-- Nodes -->
+            <circle cx="130" cy="28"  r="5" fill="rgba(124,92,191,0.9)"/>
+            <circle cx="192" cy="90"  r="5" fill="rgba(124,92,191,0.7)"/>
+            <circle cx="130" cy="152" r="5" fill="rgba(124,92,191,0.5)"/>
+            <!-- Node labels -->
+            <text x="140" y="24" font-family="'Space Mono',monospace" font-size="9.5" fill="rgba(200,180,255,0.95)" font-weight="bold">scroll</text>
+            <text x="200" y="86" font-family="'Space Mono',monospace" font-size="9.5" fill="rgba(200,180,255,0.8)">dopamine</text>
+            <text x="140" y="155" font-family="'Space Mono',monospace" font-size="9.5" fill="rgba(200,180,255,0.65)">craving</text>
+            <!-- Uncertain reward marker -->
+            <text x="50" y="42" font-family="'Space Mono',monospace" font-size="7.5" fill="rgba(124,92,191,0.5)">?</text>
+            <text x="44" y="54" font-family="'Space Mono',monospace" font-size="7.5" fill="rgba(124,92,191,0.4)">?</text>
+            <text x="56" y="54" font-family="'Space Mono',monospace" font-size="7.5" fill="rgba(124,92,191,0.35)">?</text>
+            <!-- Citation -->
+            <text x="130" y="170" text-anchor="middle" font-family="'Space Mono',monospace" font-size="7" fill="rgba(232,228,220,0.3)" letter-spacing="1">SKINNER 1938 — variable ratio schedule</text>
+          </svg>
+        </div>
+        <div class="p-title">Variable ratio reinforcement</div>
+        <div class="p-body">Unpredictable rewards (the post that makes you laugh, the video you didn't expect) are the most powerful reinforcement schedule known. Slot machines use the same mechanism — and so does your feed.</div>
+      </div>
+    </div>
+
+    <div class="gcard gcard--blue reveal d1 p-cell">
+      <div class="gcard-edge"></div>
+      <div class="gcard-shimmer"></div>
+      <div class="gcard-inner">
+        <span class="p-num">02.</span>
+        <div class="p-diagram">
+          <svg viewBox="0 0 260 175" width="100%" style="max-width:280px">
+            <!-- Hyperarousal zone -->
+            <rect x="20" y="10"  width="200" height="42" fill="rgba(226,75,74,0.1)" rx="3"/>
+            <text x="120" y="28"  text-anchor="middle" font-family="'Space Mono',monospace" font-size="10" fill="rgba(235,100,98,0.9)" font-weight="bold">hyperarousal</text>
+            <text x="120" y="43"  text-anchor="middle" font-family="'Space Mono',monospace" font-size="8" fill="rgba(226,75,74,0.55)">compulsive · reactive · no real choice</text>
+            <!-- Window zone -->
+            <rect x="20" y="57"  width="200" height="52" fill="rgba(29,158,117,0.1)" rx="3"/>
+            <text x="120" y="79"  text-anchor="middle" font-family="'Space Mono',monospace" font-size="10" fill="rgba(50,200,145,0.95)" font-weight="bold">window of tolerance</text>
+            <text x="120" y="96" text-anchor="middle" font-family="'Space Mono',monospace" font-size="8" fill="rgba(29,158,117,0.6)">intentional · present · choice available</text>
+            <!-- Hypoarousal zone -->
+            <rect x="20" y="114" width="200" height="34" fill="rgba(232,228,220,0.04)" rx="3"/>
+            <text x="120" y="135" text-anchor="middle" font-family="'Space Mono',monospace" font-size="10" fill="rgba(232,228,220,0.35)">hypoarousal</text>
+            <!-- Reset arrow -->
+            <defs><marker id="arr-d" viewBox="0 0 8 8" refX="4" refY="6" markerWidth="5" markerHeight="5" orient="auto"><path d="M1 1 L4 6 L7 1" fill="none" stroke="rgba(50,200,145,0.75)" stroke-width="1.4"/></marker></defs>
+            <line x1="212" y1="28" x2="212" y2="75" stroke="rgba(50,200,145,0.55)" stroke-width="1" stroke-dasharray="3,3" marker-end="url(#arr-d)"/>
+            <text x="218" y="54" font-family="'Space Mono',monospace" font-size="8" fill="rgba(50,200,145,0.7)">reset</text>
+            <!-- Citation -->
+            <text x="130" y="170" text-anchor="middle" font-family="'Space Mono',monospace" font-size="7" fill="rgba(232,228,220,0.3)" letter-spacing="1">SIEGEL 1999</text>
+          </svg>
+        </div>
+        <div class="p-title">The window of tolerance</div>
+        <div class="p-body">Dan Siegel's model shows that intentional choice is only available inside a specific arousal range. Above it, behaviour becomes automatic. A 90-second reset brings you back into the window.</div>
+      </div>
+    </div>
+
+    <div class="gcard gcard--teal reveal d2 p-cell">
+      <div class="gcard-edge"></div>
+      <div class="gcard-shimmer"></div>
+      <div class="gcard-inner">
+        <span class="p-num">03.</span>
+        <div class="p-diagram">
+          <svg viewBox="0 0 260 175" width="100%" style="max-width:280px">
+            <!-- Baseline -->
+            <line x1="20" y1="90" x2="240" y2="90" stroke="rgba(232,228,220,0.12)" stroke-width="1"/>
+            <!-- Noisy signal line -->
+            <polyline points="20,90 40,90 52,38 64,142 76,55 88,118 100,90 140,90 158,72 172,52 186,60 200,90 220,90 240,90" fill="none" stroke="rgba(29,158,117,0.7)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- Boundary vertical line -->
+            <line x1="120" y1="12" x2="120" y2="162" stroke="rgba(29,158,117,0.35)" stroke-width="1" stroke-dasharray="4,4"/>
+            <!-- Labels -->
+            <text x="60" y="14" text-anchor="middle" font-family="'Space Mono',monospace" font-size="8.5" fill="rgba(232,228,220,0.5)">before</text>
+            <text x="180" y="14" text-anchor="middle" font-family="'Space Mono',monospace" font-size="8.5" fill="rgba(232,228,220,0.5)">after</text>
+            <text x="124" y="22" font-family="'Space Mono',monospace" font-size="9" fill="rgba(50,200,145,0.85)" font-weight="bold">boundary</text>
+            <!-- Residue shading -->
+            <rect x="20" y="38" width="98" height="52" fill="rgba(226,75,74,0.05)" rx="2"/>
+            <text x="69" y="72" text-anchor="middle" font-family="'Space Mono',monospace" font-size="7.5" fill="rgba(226,100,98,0.5)">attention residue</text>
+            <!-- Clean zone -->
+            <text x="180" y="72" text-anchor="middle" font-family="'Space Mono',monospace" font-size="7.5" fill="rgba(50,200,145,0.55)">focused</text>
+            <!-- Citation -->
+            <text x="130" y="170" text-anchor="middle" font-family="'Space Mono',monospace" font-size="7" fill="rgba(232,228,220,0.3)" letter-spacing="1">LEROY 2009 — attention residue</text>
+          </svg>
+        </div>
+        <div class="p-title">Attention residue</div>
+        <div class="p-body">Unfinished states leave a cognitive trace. Without a clean boundary, your attention is split across everything you half-finished scrolling through. The reset closes those open loops.</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- MECHANISM DIAGRAM — the boundary intervention, full width -->
+<section id="mechanism">
+  <div class="s-header"><span class="s-label">How the intervention works</span><span class="s-num">02.5</span></div>
+  <div class="mech-wrap">
+    <svg id="mech-svg" viewBox="0 0 1220 360" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block">
+      <defs>
+        <style>
+          .mech-mono{font-family:'Space Mono',monospace}
+        </style>
+      </defs>
+
+      <!-- baseline axis -->
+      <line x1="40" y1="232" x2="1180" y2="232" stroke="rgba(232,228,220,0.14)" stroke-width="0.7"/>
+
+      <!-- compulsive oscillation wave, left of boundary -->
+      <path id="mech-wave" d="M40,180 C 90,120 130,240 180,180 C 230,120 270,240 320,180 C 360,130 400,225 440,195 C 470,175 485,200 495,190"
+        fill="none" stroke="rgba(232,228,220,0.32)" stroke-width="1.1" opacity="0"/>
+
+      <!-- vertical boundary marker -->
+      <line id="mech-boundary-line" x1="513" y1="62" x2="513" y2="248" stroke="rgba(58,138,221,0.6)" stroke-width="0.8" stroke-dasharray="3,4" opacity="0"/>
+
+      <!-- "ORB APPEARS" label above boundary -->
+      <text id="mech-orb-label" x="525" y="56" class="mech-mono" font-size="11" letter-spacing="2.5" fill="rgba(100,165,240,0.9)" opacity="0">ORB APPEARS</text>
+
+      <!-- orb circle marker on the axis at the boundary -->
+      <g id="mech-orb-marker" opacity="0">
+        <circle cx="513" cy="178" r="20" fill="none" stroke="rgba(58,138,221,0.65)" stroke-width="0.8"/>
+        <line x1="513" y1="160" x2="513" y2="196" stroke="rgba(58,138,221,0.55)" stroke-width="0.6"/>
+        <line x1="495" y1="178" x2="531" y2="178" stroke="rgba(58,138,221,0.55)" stroke-width="0.6"/>
+        <circle cx="513" cy="178" r="3" fill="rgba(100,165,240,0.9)"/>
+      </g>
+
+      <!-- 90 SEC / RITUAL box -->
+      <g id="mech-box" opacity="0">
+        <rect x="555" y="100" width="195" height="156" rx="2" fill="rgba(58,138,221,0.05)" stroke="rgba(58,138,221,0.5)" stroke-width="0.8"/>
+        <text x="652" y="172" text-anchor="middle" class="mech-mono" font-size="17" letter-spacing="3" fill="rgba(100,165,240,0.9)" font-weight="700">90 SEC</text>
+        <text x="652" y="196" text-anchor="middle" class="mech-mono" font-size="10" letter-spacing="3" fill="rgba(58,138,221,0.5)">RITUAL</text>
+      </g>
+
+      <!-- two diverging paths after the box -->
+      <!-- dashed: continue intentionally (faded, de-emphasized) -->
+      <path id="mech-path-continue" d="M750,200 C 850,165 950,150 1180,140" fill="none" stroke="rgba(232,228,220,0.3)" stroke-width="0.9" stroke-dasharray="2,4" opacity="0"/>
+      <text id="mech-label-continue" x="900" y="128" class="mech-mono" font-size="11" letter-spacing="1" fill="rgba(232,228,220,0.4)" opacity="0">CONTINUE — <tspan fill="rgba(232,228,220,0.22)">intentionally</tspan></text>
+
+      <!-- solid: redirect deliberately (emphasized, the real path) -->
+      <path id="mech-path-redirect" d="M750,210 C 830,232 880,232 1180,232" fill="none" stroke="rgba(232,228,220,0.85)" stroke-width="1.4" opacity="0"/>
+      <text id="mech-label-redirect" x="900" y="218" class="mech-mono" font-size="11" letter-spacing="1" fill="rgba(232,228,220,0.85)" font-weight="700" opacity="0">REDIRECT — deliberately</text>
+
+      <!-- bottom annotations -->
+      <text x="40" y="296" class="mech-mono" font-size="10" letter-spacing="2" fill="rgba(232,228,220,0.3)" opacity="0" id="mech-state-label">COMPULSIVE STATE</text>
+      <text x="40" y="338" class="mech-mono" font-size="10" letter-spacing="1.5" fill="rgba(232,228,220,0.2)" opacity="0" id="mech-t0">t = 0</text>
+      <text x="513" y="338" text-anchor="middle" class="mech-mono" font-size="10" letter-spacing="1.5" fill="rgba(58,138,221,0.7)" font-weight="700" opacity="0" id="mech-boundary-word">boundary</text>
+      <text x="1180" y="338" text-anchor="end" class="mech-mono" font-size="10" letter-spacing="1.5" fill="rgba(232,228,220,0.2)" opacity="0" id="mech-t90">t + 90s</text>
+    </svg>
+  </div>
+</section>
+
+<!-- QUOTE 1 -->
+<div class="quote-break" id="qb1">
+  <svg class="qb-neuron" viewBox="0 0 180 180" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <g stroke="rgba(124,92,191,0.28)" stroke-width="0.6" fill="none">
+      <line x1="90" y1="90" x2="40" y2="50"/>
+      <line x1="90" y1="90" x2="140" y2="45"/>
+      <line x1="90" y1="90" x2="155" y2="110"/>
+      <line x1="90" y1="90" x2="120" y2="155"/>
+      <line x1="90" y1="90" x2="50" y2="148"/>
+      <line x1="90" y1="90" x2="25" y2="115"/>
+      <line x1="40" y1="50" x2="20" y2="28"/>
+      <line x1="40" y1="50" x2="65" y2="22"/>
+      <line x1="140" y1="45" x2="162" y2="20"/>
+      <line x1="140" y1="45" x2="158" y2="68"/>
+      <line x1="155" y1="110" x2="172" y2="88"/>
+      <line x1="155" y1="110" x2="168" y2="135"/>
+      <line x1="50" y1="148" x2="30" y2="165"/>
+      <line x1="25" y1="115" x2="8" y2="138"/>
+    </g>
+    <g fill="rgba(124,92,191,0.55)">
+      <circle cx="90" cy="90" r="5"/>
+      <circle cx="40" cy="50" r="3"/><circle cx="140" cy="45" r="3"/>
+      <circle cx="155" cy="110" r="3"/><circle cx="120" cy="155" r="3"/>
+      <circle cx="50" cy="148" r="3"/><circle cx="25" cy="115" r="3"/>
+    </g>
+    <g fill="rgba(124,92,191,0.22)">
+      <circle cx="20" cy="28" r="1.5"/><circle cx="65" cy="22" r="1.5"/>
+      <circle cx="162" cy="20" r="1.5"/><circle cx="158" cy="68" r="1.5"/>
+      <circle cx="172" cy="88" r="1.5"/><circle cx="168" cy="135" r="1.5"/>
+      <circle cx="30" cy="165" r="1.5"/><circle cx="8" cy="138" r="1.5"/>
+    </g>
+    <circle cx="65" cy="70" r="2" fill="rgba(160,120,255,0.7)">
+      <animate attributeName="opacity" values="0.7;0;0.7" dur="2.1s" repeatCount="indefinite"/>
+      <animateMotion dur="2.1s" repeatCount="indefinite" path="M0,0 L-25,-20"/>
+    </circle>
+    <circle cx="115" cy="68" r="2" fill="rgba(160,120,255,0.55)">
+      <animate attributeName="opacity" values="0;0.55;0" dur="1.8s" repeatCount="indefinite" begin="0.6s"/>
+      <animateMotion dur="1.8s" repeatCount="indefinite" begin="0.6s" path="M0,0 L50,-45"/>
+    </circle>
+  </svg>
+  <div class="qb-text">
+    <span class="qb-word">Every</span>
+    <span class="qb-word">other</span>
+    <span class="qb-word">solution</span>
+    <span class="qb-word">asks</span>
+    <span class="qb-word">you</span>
+    <span class="qb-word">to</span>
+    <span class="qb-word qb-dim">resist.</span>
+    <span class="qb-word">Neuralia</span>
+    <span class="qb-word">gives</span>
+    <span class="qb-word">you</span>
+    <span class="qb-word qb-accent">somewhere</span>
+    <span class="qb-word qb-accent">to</span>
+    <span class="qb-word qb-accent">go</span>
+    <span class="qb-word qb-dim">instead.</span>
+  </div>
+</div>
+
+<!-- RESET SESSION -->
+<section id="reset">
+  <div class="s-header"><span class="s-label">The Neural Reset Session</span><span class="s-num">03</span></div>
+  <div class="phases">
+
+    <div class="gcard gcard--violet reveal ph-cell">
+      <div class="gcard-edge"></div>
+      <div class="gcard-shimmer"></div>
+      <div class="gcard-inner">
+        <div class="ph-num">I</div>
+        <div class="ph-name">Interrupt</div>
+        <div class="ph-dur">5 – 10 s</div>
+        <div class="ph-body">Screen dims. The orb slows. One line of text. No stats, no judgment — just a pause that breaks the loop's momentum.</div>
+        <div class="ph-copy">"Pause. You went somewhere. You're back now."</div>
+      </div>
+    </div>
+
+    <div class="gcard gcard--blue reveal d1 ph-cell">
+      <div class="gcard-edge"></div>
+      <div class="gcard-shimmer"></div>
+      <div class="gcard-inner">
+        <div class="ph-num">II</div>
+        <div class="ph-name">Discharge</div>
+        <div class="ph-dur">30 – 45 s</div>
+        <div class="ph-body">Orb-paced breathing: 4s inhale, 2s hold, 6s exhale. The longer exhale activates the vagus nerve. This is physiology, not aesthetic.</div>
+        <div class="ph-copy">"Let the orb breathe for you."</div>
+      </div>
+    </div>
+
+    <div class="gcard gcard--teal reveal d2 ph-cell">
+      <div class="gcard-edge"></div>
+      <div class="gcard-shimmer"></div>
+      <div class="gcard-inner">
+        <div class="ph-num">III</div>
+        <div class="ph-name">Re-anchor</div>
+        <div class="ph-dur">30 – 60 s</div>
+        <div class="ph-body">Four choices. Equal weight. No recommendation. Continue intentionally · Switch task · Take a break · Close this site. The choice is yours — and now it actually is.</div>
+        <div class="ph-copy">"What's actually next?"</div>
+      </div>
+    </div>
+
+    <div class="gcard gcard--amber reveal d3 ph-cell">
+      <div class="gcard-edge"></div>
+      <div class="gcard-shimmer"></div>
+      <div class="gcard-inner">
+        <div class="ph-num">IV</div>
+        <div class="ph-name">Reinforce</div>
+        <div class="ph-dur">5 s</div>
+        <div class="ph-body">The orb settles. One sentence closes the loop — not a reward, not a streak. A reframe that builds identity over time.</div>
+        <div class="ph-copy">"That was recovery. You're building something."</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- SCIENCE -->
+<section id="science">
+  <div class="s-header"><span class="s-label">Grounded in research</span><span class="s-num">04</span></div>
+  <div class="sci-wrap">
+    <div class="reveal">
+      <div class="sci-title">Not wellness.<br>Mechanism.</div>
+      <div class="sci-body">Every phase maps directly to peer-reviewed research on attention, arousal, and habit formation. Nothing here is decorative.<br><br>Neuralia does not claim to rewire your brain. It claims one thing: a short, embodied pause changes the quality of the choice that follows it.</div>
+    </div>
+    <div class="sci-cards">
+
+      <div class="gcard gcard--blue reveal d1 sci-card">
+        <div class="gcard-edge"></div>
+        <div class="gcard-shimmer"></div>
+        <div class="gcard-inner">
+          <div class="sci-item-label">Attention residue</div>
+          <div class="sci-item-body">Unfinished tasks leave a cognitive trace that degrades the next thing you touch. The interrupt phase creates a boundary — ending the previous state before the next begins.</div>
+          <div class="sci-item-src">Sophie Leroy · Organizational Behavior and Human Decision Processes, 109(2), 168–181 · UW Bothell, 2009</div>
+        </div>
+      </div>
+
+      <div class="gcard gcard--violet reveal d2 sci-card">
+        <div class="gcard-edge"></div>
+        <div class="gcard-shimmer"></div>
+        <div class="gcard-inner">
+          <div class="sci-item-label">Interruption recovery</div>
+          <div class="sci-item-body">Interrupted workers take an average of 23 minutes and 15 seconds to resume focused work — passing through two intervening tasks first. The reset creates a natural boundary, making re-entry lower-cost.</div>
+          <div class="sci-item-src">Gloria Mark · "The Cost of Interrupted Work: More Speed and Stress" · CHI 2008 · UC Irvine</div>
+        </div>
+      </div>
+
+      <div class="gcard gcard--teal reveal d1 sci-card">
+        <div class="gcard-edge"></div>
+        <div class="gcard-shimmer"></div>
+        <div class="gcard-inner">
+          <div class="sci-item-label">Exhale-dominant breathing</div>
+          <div class="sci-item-body">Slow breathing with longer exhales measurably increases parasympathetic tone — confirmed across multiple studies using heart rate variability as the index. The 4-in / 6-out pattern used in the reset sits within the well-studied 0.1 Hz resonance range.</div>
+          <div class="sci-item-src">Laborde et al. · Neuroscience &amp; Biobehavioral Reviews, 2022 · peer-reviewed meta-analysis</div>
+        </div>
+      </div>
+
+      <div class="gcard gcard--amber reveal d2 sci-card">
+        <div class="gcard-edge"></div>
+        <div class="gcard-shimmer"></div>
+        <div class="gcard-inner">
+          <div class="sci-item-label">Identity-based habit</div>
+          <div class="sci-item-body">Framing behaviour as skill-building rather than performance increases long-term repetition. The goal is not app engagement — it is making the app unnecessary.</div>
+          <div class="sci-item-src">Wendy Wood · Good Habits, Bad Habits · USC, 2019 · popularised by James Clear, Atomic Habits, 2018</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- CALM MODE -->
+<section id="calm">
+  <div class="s-header"><span class="s-label">Calm Mode</span><span class="s-num">05</span></div>
+  <div class="calm-wrap">
+    <div class="reveal">
+      <div class="calm-headline">Remove the traps<br>before you fall<br>into them.</div>
+      <div class="calm-body">Calm Mode passively removes infinite scroll and autoplay from the sites that rely on them most. No willpower needed — the environment just gets quieter.<br><br>Toggle it on. It runs in the background. You won't notice it until you realise you've been on the same page for 3 minutes and actually read something.</div>
+    </div>
+    <div class="gcard gcard--blue reveal d1" style="padding:36px">
+      <div class="gcard-edge"></div>
+      <div class="gcard-shimmer"></div>
+      <div class="gcard-inner">
+        <div style="font-family:'Open Sauce Sans','Helvetica Neue',sans-serif;font-size:9px;letter-spacing:.26em;text-transform:uppercase;color:rgba(232,228,220,0.2);margin-bottom:22px;font-weight:300">Sites with Calm Mode active</div>
+        <div class="site-pills">
+          <span class="site-pill active">YouTube</span>
+          <span class="site-pill active">Twitter / X</span>
+          <span class="site-pill active">Instagram</span>
+          <span class="site-pill active">Reddit</span>
+          <span class="site-pill active">LinkedIn</span>
+          <span class="site-pill" style="opacity:.25">More soon</span>
+        </div>
+        <div style="font-size:12px;color:rgba(232,228,220,0.28);margin-top:28px;line-height:2;border-top:.5px solid rgba(232,228,220,0.06);padding-top:22px;font-weight:300;letter-spacing:.01em">
+          Removes autoplay · Hides infinite scroll triggers<br>
+          Dims recommendation rails · Restores stopping cues
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- QUOTE 2 -->
+<div class="quote-break" id="qb2">
+  <svg class="qb-neuron" viewBox="0 0 180 180" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <g stroke="rgba(58,138,221,0.28)" stroke-width="0.6" fill="none">
+      <line x1="90" y1="90" x2="50" y2="40"/>
+      <line x1="90" y1="90" x2="145" y2="55"/>
+      <line x1="90" y1="90" x2="160" y2="100"/>
+      <line x1="90" y1="90" x2="130" y2="158"/>
+      <line x1="90" y1="90" x2="45" y2="152"/>
+      <line x1="90" y1="90" x2="22" y2="105"/>
+      <line x1="50" y1="40" x2="25" y2="18"/>
+      <line x1="50" y1="40" x2="72" y2="15"/>
+      <line x1="145" y1="55" x2="168" y2="30"/>
+      <line x1="145" y1="55" x2="162" y2="78"/>
+      <line x1="160" y1="100" x2="175" y2="80"/>
+      <line x1="160" y1="100" x2="170" y2="128"/>
+      <line x1="130" y1="158" x2="145" y2="175"/>
+      <line x1="45" y1="152" x2="28" y2="168"/>
+      <line x1="22" y1="105" x2="5" y2="92"/>
+    </g>
+    <g fill="rgba(58,138,221,0.55)">
+      <circle cx="90" cy="90" r="5"/>
+      <circle cx="50" cy="40" r="3"/><circle cx="145" cy="55" r="3"/>
+      <circle cx="160" cy="100" r="3"/><circle cx="130" cy="158" r="3"/>
+      <circle cx="45" cy="152" r="3"/><circle cx="22" cy="105" r="3"/>
+    </g>
+    <g fill="rgba(58,138,221,0.22)">
+      <circle cx="25" cy="18" r="1.5"/><circle cx="72" cy="15" r="1.5"/>
+      <circle cx="168" cy="30" r="1.5"/><circle cx="162" cy="78" r="1.5"/>
+      <circle cx="175" cy="80" r="1.5"/><circle cx="170" cy="128" r="1.5"/>
+      <circle cx="145" cy="175" r="1.5"/><circle cx="28" cy="168" r="1.5"/>
+      <circle cx="5" cy="92" r="1.5"/>
+    </g>
+    <circle cx="70" cy="65" r="2" fill="rgba(100,180,255,0.7)">
+      <animate attributeName="opacity" values="0.7;0;0.7" dur="2.3s" repeatCount="indefinite"/>
+      <animateMotion dur="2.3s" repeatCount="indefinite" path="M0,0 L-40,-50"/>
+    </circle>
+    <circle cx="118" cy="72" r="2" fill="rgba(100,180,255,0.55)">
+      <animate attributeName="opacity" values="0;0.55;0" dur="1.9s" repeatCount="indefinite" begin="0.8s"/>
+      <animateMotion dur="1.9s" repeatCount="indefinite" begin="0.8s" path="M0,0 L55,-35"/>
+    </circle>
+  </svg>
+  <div class="qb-text">
+    <span class="qb-word">Recovery</span>
+    <span class="qb-word">is</span>
+    <span class="qb-word">a</span>
+    <span class="qb-word">skill.</span>
+    <span class="qb-word qb-accent">You</span>
+    <span class="qb-word qb-accent">already</span>
+    <span class="qb-word qb-accent">have</span>
+    <span class="qb-word qb-accent">it.</span>
+    <span class="qb-word">You</span>
+    <span class="qb-word">just</span>
+    <span class="qb-word">need</span>
+    <span class="qb-word qb-dim">the</span>
+    <span class="qb-word qb-dim">moment.</span>
+  </div>
+</div>
+
+<!-- MANIFESTO -->
+<section>
+  <div class="s-header"><span class="s-label">What we believe</span><span class="s-num">06</span></div>
+  <div class="manifesto">
+    <div class="manifesto-line from-left">
+      <span class="m-index">01</span>
+      <span class="m-text">The problem is not that you use the internet. It is that the internet was redesigned to make leaving feel impossible.</span>
+      <span class="m-tag">The problem</span>
+    </div>
+    <div class="manifesto-line from-right">
+      <span class="m-index">02</span>
+      <span class="m-text">Every other solution asks you to resist. Neuralia gives you somewhere to go instead.</span>
+      <span class="m-tag">The approach</span>
+    </div>
+    <div class="manifesto-line from-left">
+      <span class="m-index">03</span>
+      <span class="m-text">Neuralia won't stop the urge. It gives you a place to go when you notice it. Over time, you might not need it. That's the point.</span>
+      <span class="m-tag">The goal</span>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="waitlist" style="border-top:none">
+  <div class="cta-left" style="border-right:none">
+    <div class="cta-headline reveal">Early access.<br>No pressure.<br>No notifications.</div>
+    <div class="cta-bottom reveal d2">
+      <div class="email-row">
+        <input class="email-input" type="email" placeholder="your@email.com" id="waitlist-email-input">
+        <button class="email-btn" id="waitlist-email-btn">Join waitlist</button>
+      </div>
+      <div class="cta-note" id="waitlist-cta-note">100% local · Nothing leaves your browser<br>No tracking · No ads · No irony</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-l">Neuralia &nbsp;·&nbsp; Recovery-first &nbsp;·&nbsp; Browser extension &nbsp;·&nbsp; Beta</div>
+  <div class="footer-r">© 2026 &nbsp;·&nbsp; All local &nbsp;·&nbsp; No data collected</div>
+</footer>
+
+<script>
+// ── EMAIL COLLECTION — powered by Formspree ──────────────────
+// HOW TO ACTIVATE:
+//   1. Sign up free at formspree.io
+//   2. Click "New Form", name it "Neuralia Waitlist"
+//   3. Copy your endpoint (looks like https://formspree.io/f/xyzabc)
+//   4. Replace YOUR_FORMSPREE_ENDPOINT below with that URL
+//   That's it. Submissions land in your Formspree dashboard + your email.
+(function(){
+  var ENDPOINT = 'https://formspree.io/f/YOUR_FORMSPREE_ENDPOINT';
+
+  function submitEmail(emailVal, btn, input, noteEl) {
+    if (!emailVal || !emailVal.includes('@')) {
+      input.style.outline = '1px solid rgba(239,159,39,0.6)';
+      input.focus();
+      return;
+    }
+    input.style.outline = '';
+    btn.textContent = 'Sending...';
+    btn.disabled = true;
+    input.disabled = true;
+
+    // What happens here: the browser sends a POST request (like submitting a form)
+    // to Formspree's server with the email address. Formspree receives it, saves it,
+    // and forwards it to your registered email. No server needed on your end.
+    fetch(ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({ email: emailVal, source: btn.closest('#waitlist') ? 'waitlist-section' : 'hero' })
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if (data.ok || data.next) {
+        btn.textContent = "You're on the list ✓";
+        if (noteEl) noteEl.textContent = "We'll reach out when early access opens. Thanks for believing in this.";
+        // Sync the other input field so both forms reflect success
+        document.querySelectorAll('.email-input').forEach(function(el){ el.value = emailVal; el.disabled = true; });
+        document.querySelectorAll('.email-btn').forEach(function(el){ el.textContent = "You're on the list ✓"; el.disabled = true; });
+      } else {
+        btn.textContent = 'Try again';
+        btn.disabled = false;
+        input.disabled = false;
+        if (noteEl) noteEl.textContent = 'Something went wrong. Please try again.';
+      }
+    })
+    .catch(function(){
+      btn.textContent = 'Try again';
+      btn.disabled = false;
+      input.disabled = false;
+    });
+  }
+
+  // Hero form
+  var heroBtn   = document.getElementById('hero-email-btn');
+  var heroInput = document.getElementById('hero-email-input');
+  if (heroBtn && heroInput) {
+    heroBtn.addEventListener('click', function(){ submitEmail(heroInput.value.trim(), heroBtn, heroInput, null); });
+    heroInput.addEventListener('keydown', function(e){ if(e.key==='Enter') heroBtn.click(); });
+  }
+
+  // Waitlist section form
+  var wlBtn   = document.getElementById('waitlist-email-btn');
+  var wlInput = document.getElementById('waitlist-email-input');
+  var wlNote  = document.getElementById('waitlist-cta-note');
+  if (wlBtn && wlInput) {
+    wlBtn.addEventListener('click', function(){ submitEmail(wlInput.value.trim(), wlBtn, wlInput, wlNote); });
+    wlInput.addEventListener('keydown', function(e){ if(e.key==='Enter') wlBtn.click(); });
+  }
+})();
+
+// ── CURSOR GLOW ───────────────────────────────────────────
+(function(){
+  var glow=document.getElementById('cursor-glow');
+  document.addEventListener('mousemove',function(e){
+    glow.style.left=e.clientX+'px';
+    glow.style.top=e.clientY+'px';
+  });
+})();
+
+// ── KINETIC GLASS CARDS ───────────────────────────────────
+(function(){
+  var cards=document.querySelectorAll('.gcard');
+  cards.forEach(function(card){
+    var shimmer=card.querySelector('.gcard-shimmer');
+    card.addEventListener('mouseenter',function(){if(shimmer)shimmer.style.opacity='1';});
+    card.addEventListener('mouseleave',function(){card.style.transform='';if(shimmer)shimmer.style.opacity='0';});
+    card.addEventListener('mousemove',function(e){
+      var rect=card.getBoundingClientRect();
+      var x=e.clientX-rect.left,y=e.clientY-rect.top;
+      var xc=rect.width/2,yc=rect.height/2;
+      card.style.transform='perspective(700px) rotateX('+((y-yc)/yc*-6)+'deg) rotateY('+((x-xc)/xc*6)+'deg) scale3d(1.012,1.012,1.012)';
+      if(shimmer){shimmer.style.left=x+'px';shimmer.style.top=y+'px';}
+    });
+  });
+})();
+
+// ── HERO READOUT — cycles state label for a "live" feel ───
+(function(){
+  var el=document.getElementById('hero-readout-state');
+  if(!el)return;
+  var states=['calm','settled','attentive','calm'];
+  var i=0;
+  setInterval(function(){
+    i=(i+1)%states.length;
+    el.style.opacity='0';
+    setTimeout(function(){el.textContent=states[i];el.style.opacity='1';},300);
+  },3400);
+  el.style.transition='opacity .3s';
+})();
+
+// ── MECHANISM DIAGRAM REVEAL ──────────────────────────────
+(function(){
+  var section=document.getElementById('mechanism');
+  if(!section)return;
+  var played=false;
+
+  var sequence=[
+    {id:'mech-wave',            prop:'opacity', delay:0},
+    {id:'mech-boundary-line',   prop:'opacity', delay:650},
+    {id:'mech-orb-label',       prop:'opacity', delay:750},
+    {id:'mech-orb-marker',      prop:'opacity', delay:800},
+    {id:'mech-box',             prop:'opacity', delay:1100},
+    {id:'mech-path-continue',   prop:'opacity', delay:1650},
+    {id:'mech-label-continue',  prop:'opacity', delay:1850},
+    {id:'mech-path-redirect',   prop:'opacity', delay:1750},
+    {id:'mech-label-redirect',  prop:'opacity', delay:1950},
+    {id:'mech-state-label',     prop:'opacity', delay:400},
+    {id:'mech-t0',              prop:'opacity', delay:450},
+    {id:'mech-boundary-word',   prop:'opacity', delay:900},
+    {id:'mech-t90',             prop:'opacity', delay:2100}
+  ];
+
+  function play(){
+    if(played)return;
+    played=true;
+    sequence.forEach(function(s){
+      var el=document.getElementById(s.id);
+      if(!el)return;
+      el.style.transition='opacity 0.9s ease';
+      setTimeout(function(){ el.style.opacity='1'; }, s.delay);
+    });
+    // gentle continuous drift on the wave once revealed, echoes
+    // the breathing motif used elsewhere on the page
+    setTimeout(function(){
+      var wave=document.getElementById('mech-wave');
+      if(wave){
+        wave.style.transition='opacity 0.9s ease, transform 4s ease-in-out infinite alternate';
+        wave.style.transformOrigin='250px 180px';
+      }
+    },2400);
+  }
+
+  var obs=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){ if(e.isIntersecting) play(); });
+  },{threshold:0.35});
+  obs.observe(section);
+})();
+(function(){
+  var rings=document.querySelectorAll('#bo-sphere .bo-ring');
+  rings.forEach(function(r,i){
+    r.style.transition='opacity 1.1s ease '+(0.25+i*0.09)+'s';
+    requestAnimationFrame(function(){ r.style.opacity='1'; });
+  });
+  // Latitude rings fade in just after the longitude wireframe,
+  // giving the sphere its sense of depth a beat later
+  var lats=document.querySelectorAll('.bo-lat');
+  lats.forEach(function(l,i){
+    l.style.transition='opacity 1.3s ease '+(1.0+i*0.07)+'s';
+    requestAnimationFrame(function(){ l.style.opacity='1'; });
+  });
+  var extras=['bo-spoke','bo-label-90','bo-label-boundary','bo-core-dot','bo-ticks'];
+  extras.forEach(function(id,i){
+    var el=document.getElementById(id);
+    if(!el)return;
+    el.style.transition='opacity 1s ease '+(1.6+i*0.15)+'s';
+    requestAnimationFrame(function(){ el.style.opacity='1'; });
+  });
+  // Core dot gentle pulse, starts after entrance completes
+  setTimeout(function(){
+    var dot=document.getElementById('bo-core-dot');
+    if(dot) dot.style.animation='bo-core-pulse 3.6s ease-in-out infinite';
+  },2800);
+})();
+
+// ── SCROLL ANIMATIONS ─────────────────────────────────────
+(function(){
+  // 1. Standard reveal (fade + rise)
+  var reveals=document.querySelectorAll('.reveal');
+  var revObs=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){e.target.classList.add('visible');revObs.unobserve(e.target);}
+    });
+  },{threshold:.08});
+  reveals.forEach(function(el){revObs.observe(el);});
+  setTimeout(function(){
+    document.querySelectorAll('.hero .reveal').forEach(function(el){el.classList.add('visible');});
+  },200);
+
+  // 2. Word-by-word clip reveal for quotes
+  document.querySelectorAll('.quote-break').forEach(function(qb){
+    var words=qb.querySelectorAll('.qb-word');
+    var obs=new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){
+          qb.classList.add('qb-active');
+          words.forEach(function(w,i){
+            setTimeout(function(){w.classList.add('visible');},i*60);
+          });
+          obs.unobserve(qb);
+        }
+      });
+    },{threshold:.25});
+    obs.observe(qb);
+  });
+
+  // 3. Manifesto lines — alternating left/right slide
+  var mlines=document.querySelectorAll('.manifesto-line');
+  mlines.forEach(function(el,i){
+    el.classList.add(i%2===0?'from-left':'from-right');
+  });
+  var mObs=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){e.target.classList.add('visible');mObs.unobserve(e.target);}
+    });
+  },{threshold:.15});
+  mlines.forEach(function(el){mObs.observe(el);});
+
+  // 4. Section headers — ghost number count-up on enter
+  document.querySelectorAll('.s-header').forEach(function(header){
+    var num=header.querySelector('.s-num');
+    if(!num)return;
+    var target=parseInt(num.textContent,10);
+    if(isNaN(target))return;
+    var started=false;
+    var hObs=new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting&&!started){
+          started=true;
+          var start=0,dur=600,t0=null;
+          function step(ts){
+            if(!t0)t0=ts;
+            var p=Math.min((ts-t0)/dur,1);
+            var ease=1-Math.pow(1-p,3);
+            num.textContent=String(Math.round(ease*target)).padStart(2,'0');
+            if(p<1)requestAnimationFrame(step);
+          }
+          requestAnimationFrame(step);
+          hObs.unobserve(header);
+        }
+      });
+    },{threshold:.5});
+    hObs.observe(header);
+  });
+
+  // 5. Parallax on hero-right SVG
+  var fieldSvg=document.getElementById('field-svg');
+  if(fieldSvg){
+    window.addEventListener('scroll',function(){
+      var sy=window.scrollY;
+      fieldSvg.style.transform='translateY('+sy*.18+'px)';
+    },{passive:true});
+  }
+
+  // 6. Card stagger — give each card in a grid a slight delay based on column position
+  document.querySelectorAll('.problem-grid .gcard, .phases .gcard').forEach(function(card,i){
+    card.style.transitionDelay=(0.06*i)+'s';
+  });
+
+})();
+</script>
+</body>
+</html>
