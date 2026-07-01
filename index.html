@@ -604,8 +604,10 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:22p
 /* ── RESPONSIVE ── */
 @media(max-width:900px){
   nav{padding:16px 24px}.nav-links{display:none}
+  .nav-cta{font-size:9px;padding:8px 12px;letter-spacing:.08em;white-space:nowrap}
   .hero{grid-template-columns:1fr;height:auto;max-height:none}.hero-left{padding:64px 24px 40px;border-right:none;border-bottom:.5px solid var(--rule)}.hero-right{min-height:60vw}.hero-orb-card{max-height:none}
   .problem-grid{grid-template-columns:1fr;padding:24px}
+  .credibility-grid{grid-template-columns:1fr;padding:24px;gap:16px}
   .phases{grid-template-columns:1fr 1fr;padding:24px;gap:12px}
   .sci-wrap{grid-template-columns:1fr;padding:28px;gap:28px}
   .sci-cards{grid-template-columns:1fr}
@@ -615,9 +617,11 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:22p
   .cta-right{padding:52px 28px}
   .manifesto{padding:0 28px}
   footer,.s-header{padding-left:24px;padding-right:24px}
+  .cred-note{padding:0 24px 8px}
 }
 @media(max-width:560px){
   .phases{grid-template-columns:1fr}
+  .nav-cta{display:none}
 }
 </style>
 </head>
@@ -1516,3 +1520,4 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:22p
 </script>
 </body>
 </html>
+  
