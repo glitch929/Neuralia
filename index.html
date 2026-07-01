@@ -311,16 +311,7 @@ section{border-top:.5px solid var(--rule)}
 }
 /* Large ghost number — purely atmospheric, sits behind */
 .s-num{
-  position:absolute;right:52px;
-  font-family:var(--serif);
-  font-size:clamp(60px,8vw,110px);
-  font-weight:700;
-  color:rgba(232,228,220,0.04);
-  letter-spacing:-.06em;
-  line-height:1;
-  top:50%;transform:translateY(-50%);
-  pointer-events:none;
-  user-select:none;
+  display:none;
 }
 /* Section label — now a real heading, visible and purposeful */
 .s-label{
@@ -589,6 +580,7 @@ section{border-top:.5px solid var(--rule)}
 .cta-headline{font-family:var(--serif);font-size:clamp(32px,3.6vw,58px);font-weight:700;line-height:1.05;letter-spacing:-.045em}
 .cta-bottom{display:flex;flex-direction:column;gap:16px;max-width:400px}
 .email-row{display:flex;border:.5px solid rgba(232,228,220,.16)}
+@media(max-width:560px){.email-row{flex-direction:column}.email-btn{width:100%;padding:14px}}
 .email-input{flex:1;background:transparent;border:none;outline:none;font-family:var(--mono);font-size:13px;color:var(--ink);padding:14px 18px;font-weight:300;letter-spacing:-.01em}
 .email-input::placeholder{color:rgba(232,228,220,0.2)}
 .email-btn{background:var(--ink);color:var(--bg);border:none;padding:14px 22px;font-family:var(--mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;transition:opacity .2s;font-weight:400}
@@ -1520,4 +1512,3 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:22p
 </script>
 </body>
 </html>
-  
