@@ -596,13 +596,11 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:22p
     </div>
   </div>
   <div class="hero-right">
-    <div class="gcard gcard--violet hero-orb-card" id="hero-orb-card">
-      <div class="gcard-edge"></div>
-      <div class="gcard-shimmer"></div>
-      <div class="gcard-inner hero-orb-inner">
+    <div class="hero-orb-card" id="hero-orb-card">
+      <div class="hero-orb-inner">
         <canvas id="neuralia-orb-canvas" style="width:100%;height:100%;max-width:380px;aspect-ratio:1/1;position:relative;z-index:1;display:block"></canvas>
         <div class="hero-orb-readout">
-          <div class="hero-orb-readout-row"><span class="hero-orb-readout-label">state</span><span class="hero-orb-readout-val" id="hero-readout-state">calm</span></div>
+          <div class="hero-orb-readout-row"><span class="hero-orb-readout-label">state</span><span class="hero-orb-readout-val">settled</span></div>
           <div class="hero-orb-readout-row"><span class="hero-orb-readout-label">field</span><span class="hero-orb-readout-val">stable</span></div>
         </div>
       </div>
@@ -1195,27 +1193,6 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:22p
   });
 })();
 
-// ── HERO READOUT — cycles state label for a "live" feel,
-//    and drives the WebGL orb's energy profile to match ───
-(function(){
-  var el=document.getElementById('hero-readout-state');
-  if(!el)return;
-  var states=['calm','settled','attentive','calm'];
-  // maps the readout's display states onto the orb's wiggle/breathe profiles
-  var orbStateMap={calm:'calm', settled:'idle', attentive:'alert'};
-  var i=0;
-  setInterval(function(){
-    i=(i+1)%states.length;
-    el.style.opacity='0';
-    setTimeout(function(){
-      el.textContent=states[i];
-      el.style.opacity='1';
-      if(window.neuraliaOrb) window.neuraliaOrb.setState(orbStateMap[states[i]]);
-    },300);
-  },3400);
-  el.style.transition='opacity .3s';
-})();
-
 // ── MECHANISM DIAGRAM REVEAL ──────────────────────────────
 (function(){
   var section=document.getElementById('mechanism');
@@ -1368,22 +1345,18 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:22p
       this.radius = opts.radius || 1;
       this.detail = opts.detail || 96;
       this.scene = scene;
-      this.state = 'idle';
 
-      this.profiles = {
-        idle:  { wiggleAmp: 0.035, wiggleSpeed: 0.35, breatheAmp: 0.13,  breatheSpeed: 0.5  },
-        calm:  { wiggleAmp: 0.015, wiggleSpeed: 0.18, breatheAmp: 0.09,  breatheSpeed: 0.3  },
-        alert: { wiggleAmp: 0.07,  wiggleSpeed: 0.9,  breatheAmp: 0.17,  breatheSpeed: 1.3  },
-      };
+      // fixed "settled" energy — no state machine, no transitions
+      var wiggleAmp = 0.035, wiggleSpeed = 0.35, breatheAmp = 0.13, breatheSpeed = 0.5;
 
       var geometry = new THREE.SphereGeometry(this.radius, this.detail, this.detail);
 
       this.uniforms = {
         uTime:        { value: 0 },
-        uWiggleAmp:   { value: this.profiles.idle.wiggleAmp },
-        uWiggleSpeed: { value: this.profiles.idle.wiggleSpeed },
-        uBreatheAmp:  { value: this.profiles.idle.breatheAmp },
-        uBreatheSpeed:{ value: this.profiles.idle.breatheSpeed },
+        uWiggleAmp:   { value: wiggleAmp },
+        uWiggleSpeed: { value: wiggleSpeed },
+        uBreatheAmp:  { value: breatheAmp },
+        uBreatheSpeed:{ value: breatheSpeed },
         uCamPos:      { value: new THREE.Vector3() },
       };
 
@@ -1399,30 +1372,6 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:22p
 
       this.mesh = new THREE.Mesh(geometry, material);
       if (this.scene) this.scene.add(this.mesh);
-    }
-
-    setState(name) {
-      if (!this.profiles[name] || this.state === name) return;
-      this.state = name;
-      var p = this.profiles[name];
-      var dur = 600, start = performance.now();
-      var from = {
-        wiggleAmp: this.uniforms.uWiggleAmp.value,
-        wiggleSpeed: this.uniforms.uWiggleSpeed.value,
-        breatheAmp: this.uniforms.uBreatheAmp.value,
-        breatheSpeed: this.uniforms.uBreatheSpeed.value,
-      };
-      var uniforms = this.uniforms;
-      function step(t){
-        var k = Math.min(1, (t - start) / dur);
-        var e = k < 0.5 ? 2*k*k : 1 - Math.pow(-2*k+2, 2)/2;
-        uniforms.uWiggleAmp.value    = from.wiggleAmp    + (p.wiggleAmp    - from.wiggleAmp)    * e;
-        uniforms.uWiggleSpeed.value  = from.wiggleSpeed  + (p.wiggleSpeed  - from.wiggleSpeed)  * e;
-        uniforms.uBreatheAmp.value   = from.breatheAmp   + (p.breatheAmp   - from.breatheAmp)   * e;
-        uniforms.uBreatheSpeed.value = from.breatheSpeed + (p.breatheSpeed - from.breatheSpeed) * e;
-        if (k < 1) requestAnimationFrame(step);
-      }
-      requestAnimationFrame(step);
     }
 
     update(elapsed, camera) {
@@ -1529,17 +1478,18 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:22p
     varying float vDisp;
 
     vec3 iridescent(float t){
-      vec3 a = vec3(0.55, 0.65, 0.85);
-      vec3 b = vec3(0.35, 0.25, 0.35);
-      vec3 c = vec3(1.0, 1.0, 1.0);
-      vec3 d = vec3(0.30, 0.55, 0.75);
+      // biased toward violet/purple (site accent ~#7c5cbf) with blue/pink secondary
+      vec3 a = vec3(0.50, 0.42, 0.68);
+      vec3 b = vec3(0.30, 0.22, 0.32);
+      vec3 c = vec3(1.0, 1.0, 0.9);
+      vec3 d = vec3(0.55, 0.65, 0.80);
       return a + b * cos(6.28318 * (c * t + d));
     }
 
     vec3 envSample(vec3 dir){
       float t = clamp(dir.y * 0.5 + 0.5, 0.0, 1.0);
-      vec3 horizon = vec3(0.04, 0.05, 0.09);
-      vec3 zenith  = vec3(0.55, 0.62, 0.80);
+      vec3 horizon = vec3(0.05, 0.04, 0.09);
+      vec3 zenith  = vec3(0.52, 0.44, 0.72);
       vec3 base = mix(horizon, zenith, pow(t, 1.5));
       float softbox = smoothstep(0.7, 1.0, dir.y) * 0.5;
       return base + softbox;
@@ -1565,11 +1515,17 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:22p
       float hueT = fresnel * 0.7 + vDisp * 0.4 + uTime * 0.02;
       vec3 film = iridescent(hueT);
 
-      vec3 base = mix(vec3(0.015, 0.02, 0.035), envColor, 0.5);
+      // soft violet rim glow layered on top of the fresnel edge, tying
+      // the orb's color directly to the site's #7c5cbf accent
+      vec3 accentPurple = vec3(0.486, 0.361, 0.749);
+      vec3 rimGlow = accentPurple * pow(fresnel, 1.8) * 0.55;
+
+      vec3 base = mix(vec3(0.02, 0.015, 0.035), envColor, 0.5);
       vec3 color = mix(base, film, fresnel * 0.85);
+      color += rimGlow;
       color *= diff;
       color += vec3(1.0) * specA * 0.85;
-      color += vec3(0.75, 0.85, 1.0) * specB * 0.45;
+      color += vec3(0.82, 0.78, 1.0) * specB * 0.45;
 
       float alpha = clamp(fresnel * 0.85 + 0.12 + specA * 0.4, 0.0, 0.92);
 
@@ -1587,7 +1543,6 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:22p
   camera.position.set(0, 0, 3.4);
 
   var orb = new NeuralOrb(scene, { radius: 1 });
-  window.neuraliaOrb = orb; // exposed so the readout-state script can drive it
 
   function resize(){
     var w = canvas.clientWidth || card.clientWidth;
