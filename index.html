@@ -170,12 +170,12 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1000;display:flex;justify-conten
 .btn-primary{display:inline-flex;align-items:center;gap:12px;padding:13px 26px;background:var(--ink);color:var(--bg);font-family:var(--mono);font-size:9px;font-weight:400;letter-spacing:.22em;text-transform:uppercase;text-decoration:none;border:none;cursor:pointer;transition:opacity .2s}
 .btn-primary:hover{opacity:.88}
 .hero-trust{font-size:9px;color:var(--xsoft);letter-spacing:.1em;margin-top:14px;font-weight:300}
-.hero-right{position:relative;display:flex;align-items:center;justify-content:center;background:var(--bg2);overflow:hidden;padding:32px}
+.hero-right{position:relative;display:flex;align-items:center;justify-content:center;background:var(--bg2);overflow:visible;padding:32px}
 
 /* Hero orb card — same kinetic family as the section cards, larger, centered */
 .hero-orb-card{
   width:100%;
-  max-width:420px;
+  max-width:520px;
   aspect-ratio:1/1;
   max-height:calc(100vh - 160px);
   display:flex;
@@ -189,7 +189,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1000;display:flex;justify-conten
   justify-content:center;
   width:100%;
   height:100%;
-  padding:28px;
+  padding:12px;
   position:relative;
 }
 /* Live readout — bottom corner, like an instrument panel */
@@ -242,6 +242,86 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1000;display:flex;justify-conten
   flex-shrink:0;
 }
 @keyframes eyebrow-pulse{0%,100%{opacity:.4;transform:scale(0.8)}50%{opacity:1;transform:scale(1.1)}}
+
+/* ── HERO ENHANCEMENTS ─────────────────────────────────────── */
+.hero-left::before{content:'';position:absolute;top:10%;left:-20%;width:70%;height:55%;background:radial-gradient(ellipse,rgba(70,48,175,0.07) 0%,transparent 70%);pointer-events:none;z-index:0}
+.headline-accent{background:linear-gradient(128deg,var(--ink) 0%,rgba(168,130,255,0.92) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-right{background:radial-gradient(ellipse 88% 78% at 50% 46%,rgba(72,48,168,0.15) 0%,transparent 64%), var(--bg2)}
+.hero-right::before{content:'';position:absolute;inset:0;background-image:repeating-linear-gradient(0deg,transparent,transparent 47px,rgba(232,228,220,0.022) 47px,rgba(232,228,220,0.022) 48px),repeating-linear-gradient(90deg,transparent,transparent 47px,rgba(232,228,220,0.022) 47px,rgba(232,228,220,0.022) 48px);pointer-events:none;z-index:0}
+.hero-right::after{content:'';position:absolute;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent 5%,rgba(160,120,255,0.20) 50%,transparent 95%);animation:hero-scan 8s ease-in-out infinite;z-index:1;pointer-events:none}
+@keyframes hero-scan{0%{top:6%;opacity:0}10%{opacity:1}86%{opacity:0.7}100%{top:94%;opacity:0}}
+.scope-corner{position:absolute;width:20px;height:20px;border-color:rgba(160,120,255,0.32);border-style:solid;z-index:5;transition:border-color 1.8s ease}
+.scope-corner:nth-child(1){top:0;left:0;border-width:1.5px 0 0 1.5px}
+.scope-corner:nth-child(2){top:0;right:0;border-width:1.5px 1.5px 0 0}
+.scope-corner:nth-child(3){bottom:0;left:0;border-width:0 0 1.5px 1.5px}
+.scope-corner:nth-child(4){bottom:0;right:0;border-width:0 1.5px 1.5px 0}
+.hero-orb-card.is-alert .scope-corner{border-color:rgba(245,100,150,0.55)}
+.hero-orb-card.is-calm  .scope-corner{border-color:rgba(80,210,195,0.38)}
+.hero-osi-bar{width:76px;height:1.5px;background:rgba(232,228,220,0.07);position:relative;overflow:hidden;margin-top:3px}
+.hero-osi-bar-fill{position:absolute;top:0;left:0;height:100%;width:0%;background:linear-gradient(90deg,rgba(100,165,240,0.7),rgba(168,130,255,0.95));transition:width 1.4s ease,background 2.2s ease}
+@keyframes val-tick{0%,90%{opacity:1}95%{opacity:0.3}100%{opacity:1}}
+
+/* ── CSS HERO ORB ─────────────────────────────────────────── */
+#hero-css-orb{
+  width:clamp(140px,18vw,240px);
+  height:clamp(140px,18vw,240px);
+  border-radius:50%;
+  position:relative;
+  flex-shrink:0;
+  animation:hob-breathe 10s ease-in-out infinite, hob-wobble 7s ease-in-out infinite;
+  background:
+    radial-gradient(ellipse 66% 57% at 30% 22%, rgba(255,255,255,0.70) 0%, rgba(255,255,255,0.12) 44%, transparent 70%),
+    radial-gradient(ellipse 72% 62% at 68% 30%, rgba(55,142,255,0.62) 0%, transparent 62%),
+    radial-gradient(ellipse 60% 66% at 14% 58%, rgba(220,82,196,0.58) 0%, transparent 62%),
+    radial-gradient(ellipse 68% 58% at 55% 82%, rgba(32,214,186,0.58) 0%, transparent 62%),
+    radial-gradient(ellipse 54% 60% at 84% 66%, rgba(150,66,228,0.50) 0%, transparent 62%),
+    radial-gradient(ellipse 48% 42% at 22% 84%, rgba(255,196,74,0.26) 0%, transparent 62%),
+    linear-gradient(rgba(6,3,18,0.22),rgba(6,3,18,0.22));
+  border:1.5px solid rgba(255,255,255,0.50);
+  box-shadow:0 0 60px rgba(100,58,192,0.26),0 0 130px rgba(68,38,148,0.12),inset 0 0 36px rgba(255,255,255,0.09);
+  z-index:2;
+}
+@keyframes hob-breathe{
+  0%,92%,100%{transform:scale(1.00)}
+  38%,56%    {transform:scale(1.10)}
+}
+@keyframes hob-wobble{
+  0%,100%{border-radius:50% 50% 50% 50%/50% 50% 50% 50%}
+  14%    {border-radius:47% 53% 51% 49%/52% 46% 54% 48%}
+  29%    {border-radius:53% 47% 48% 52%/46% 54% 46% 54%}
+  43%    {border-radius:48% 52% 54% 46%/54% 48% 52% 46%}
+  57%    {border-radius:52% 48% 47% 53%/47% 53% 48% 52%}
+  71%    {border-radius:46% 54% 52% 48%/52% 46% 54% 48%}
+  86%    {border-radius:54% 46% 49% 51%/48% 54% 46% 54%}
+}
+/* State colours */
+#hero-css-orb.is-alert{
+  background:
+    radial-gradient(ellipse 66% 57% at 30% 22%, rgba(255,255,255,0.75) 0%, transparent 65%),
+    radial-gradient(ellipse 70% 60% at 70% 28%, rgba(255,90,140,0.60) 0%, transparent 60%),
+    radial-gradient(ellipse 62% 66% at 14% 58%, rgba(255,120,80,0.48) 0%, transparent 62%),
+    radial-gradient(ellipse 68% 58% at 55% 82%, rgba(255,80,160,0.50) 0%, transparent 62%),
+    linear-gradient(rgba(8,3,18,0.28),rgba(8,3,18,0.28));
+  border-color:rgba(255,130,160,0.55);
+  box-shadow:0 0 70px rgba(220,60,120,0.35),0 0 140px rgba(180,40,100,0.15),inset 0 0 36px rgba(255,255,255,0.10);
+  animation:hob-breathe-alert 3s ease-in-out infinite, hob-wobble 4s ease-in-out infinite;
+}
+#hero-css-orb.is-calm{
+  box-shadow:0 0 50px rgba(60,180,180,0.22),0 0 110px rgba(40,140,140,0.10),inset 0 0 36px rgba(255,255,255,0.08);
+  border-color:rgba(80,210,200,0.45);
+  animation:hob-breathe 12s ease-in-out infinite, hob-wobble 9s ease-in-out infinite;
+}
+@keyframes hob-breathe-alert{
+  0%,100%{transform:scale(1.00)}
+  35%,65%{transform:scale(1.14)}
+}
+/* Specular highlights */
+.hob-spec{position:absolute;border-radius:50%}
+.s1 {width:13%;height:9%;  top:14%;left:24%;background:rgba(255,255,255,0.94)}
+.s1i{width: 6%;height:4%;  top:calc(14% + 1.5%);left:calc(24% + 1.8%);background:white}
+.s2 {width: 8%;height:5.5%;top:21%;left:37%;background:rgba(255,255,255,0.78)}
+.s3 {width:11%;height:7%;  bottom:13%;left:41%;background:rgba(148,222,255,0.88)}
+.s3i{width: 5%;height:3%;  bottom:calc(13% + 1.5%);left:calc(41% + 2%);background:rgba(225,248,255,0.97)}
 
 /* ── SECTION COMMONS ── */
 section{border-top:.5px solid var(--rule)}
@@ -578,7 +658,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:22p
 <section class="hero" style="border-top:none" id="hero">
   <div class="hero-left">
     <div class="hero-eyebrow reveal"><span class="hero-eyebrow-dot"></span>Fig. 01 &nbsp;/&nbsp; The moment of return</div>
-    <h1 class="hero-headline reveal d1">You already know<br>when you've gone<br>too far.</h1>
+    <h1 class="hero-headline reveal d1">You already know<br>when you've gone<br><span class="headline-accent">too far.</span></h1>
     <div class="hero-sub reveal d2">
       <span class="hero-sub-num">
         <span class="hero-sub-num-label">Recovery window</span>
@@ -597,11 +677,22 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:22p
   </div>
   <div class="hero-right">
     <div class="hero-orb-card" id="hero-orb-card">
+      <span class="scope-corner"></span><span class="scope-corner"></span>
+      <span class="scope-corner"></span><span class="scope-corner"></span>
       <div class="hero-orb-inner">
-        <canvas id="neuralia-orb-canvas" style="width:100%;height:100%;max-width:380px;aspect-ratio:1/1;position:relative;z-index:1;display:block"></canvas>
+        <!-- CSS fallback — always visible until WebGL confirms it's ready -->
+        <div id="hero-css-orb">
+          <div class="hob-spec s1"></div><div class="hob-spec s1i"></div>
+          <div class="hob-spec s2"></div>
+          <div class="hob-spec s3"></div><div class="hob-spec s3i"></div>
+        </div>
+        <!-- WebGL canvas — hidden by default, shown once Three.js initialises -->
+        <canvas id="neuralia-orb-canvas" style="display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:clamp(140px,18vw,240px);height:clamp(140px,18vw,240px)"></canvas>
         <div class="hero-orb-readout">
-          <div class="hero-orb-readout-row"><span class="hero-orb-readout-label">state</span><span class="hero-orb-readout-val">settled</span></div>
-          <div class="hero-orb-readout-row"><span class="hero-orb-readout-label">field</span><span class="hero-orb-readout-val">stable</span></div>
+          <div class="hero-orb-readout-row"><span class="hero-orb-readout-label">state</span><span class="hero-orb-readout-val" id="readout-state">idle</span></div>
+          <div class="hero-orb-readout-row"><span class="hero-orb-readout-label">osi</span><span class="hero-orb-readout-val" id="readout-osi">—</span></div>
+          <div class="hero-osi-bar"><div class="hero-osi-bar-fill" id="osi-bar-fill"></div></div>
+          <div class="hero-orb-readout-row" style="margin-top:6px"><span class="hero-orb-readout-label">signal</span><span class="hero-orb-readout-val" id="readout-signal">watching</span></div>
         </div>
       </div>
     </div>
@@ -1327,245 +1418,282 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:22p
 })();
 </script>
 
-<!-- ══════════════════════════════════════════════════════════
-     HERO ORB — WebGL replacement for the concentric-ellipse SVG.
-     Bump-mapped, breathing, iridescent bubble shell rendered with
-     a small self-contained Three.js class (NeuralOrb). See the
-     class docstring for how to re-target its energy states.
-     ══════════════════════════════════════════════════════════ -->
+
+<script>
+(function(){
+  var orb     = document.getElementById('hero-css-orb');
+  var card    = document.getElementById('hero-orb-card');
+  var elState = document.getElementById('readout-state');
+  var elOsi   = document.getElementById('readout-osi');
+  var elSig   = document.getElementById('readout-signal');
+  var elBar   = document.getElementById('osi-bar-fill');
+  if (!orb) return;
+
+  var sequence = [
+    { state:'idle',  cls:'',         osi:24, sig:'nominal',      bar:24,  barColor:'linear-gradient(90deg,rgba(100,165,240,0.7),rgba(168,130,255,0.95))' },
+    { state:'idle',  cls:'',         osi:41, sig:'building',     bar:41,  barColor:'linear-gradient(90deg,rgba(100,165,240,0.7),rgba(168,130,255,0.95))' },
+    { state:'alert', cls:'is-alert', osi:63, sig:'loop detected',bar:63,  barColor:'linear-gradient(90deg,rgba(240,80,120,0.7),rgba(255,100,150,0.95))' },
+    { state:'calm',  cls:'is-calm',  osi:11, sig:'recovering',   bar:11,  barColor:'linear-gradient(90deg,rgba(60,200,190,0.7),rgba(80,220,200,0.95))' },
+  ];
+
+  var idx = 0;
+  var HOLD = 8000; // ms per stage
+
+  function apply(s) {
+    orb.className  = s.cls;
+    card.className = 'hero-orb-card ' + s.cls;
+    if (elState) elState.textContent = s.state;
+    if (elSig)   elSig.textContent   = s.sig;
+    if (elBar) {
+      elBar.style.width      = s.bar + '%';
+      elBar.style.background = s.barColor;
+    }
+    currentTarget = s.osi;
+  }
+
+  var currentTarget = sequence[0].osi;
+  apply(sequence[0]);
+  setInterval(function(){ idx = (idx+1) % sequence.length; apply(sequence[idx]); }, HOLD);
+
+  // Drift OSI number gently around the target
+  var startTime = Date.now();
+  function tick() {
+    var t = (Date.now() - startTime) / 1000;
+    var drift = Math.round(Math.sin(t * 0.45) * 3 + Math.cos(t * 0.28) * 2);
+    if (elOsi) elOsi.textContent = Math.max(0, currentTarget + drift);
+    requestAnimationFrame(tick);
+  }
+  tick();
+})();
+</script>
+<!-- NeuralOrb WebGL — progressive enhancement over the CSS orb -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 (function(){
-  var canvas = document.getElementById('neuralia-orb-canvas');
-  if (!canvas || typeof THREE === 'undefined') return;
+  if (typeof THREE === 'undefined') return; // CDN blocked — CSS orb stays
 
+  var canvas  = document.getElementById('neuralia-orb-canvas');
+  var cssOrb  = document.getElementById('hero-css-orb');
+  var card    = document.getElementById('hero-orb-card');
+  var elState = document.getElementById('readout-state');
+  var elOsi   = document.getElementById('readout-osi');
+  var elSig   = document.getElementById('readout-signal');
+  var elBar   = document.getElementById('osi-bar-fill');
+  if (!canvas) return;
+
+  /* ── NeuralOrb class (verbatim from orb.html) ── */
   class NeuralOrb {
-    constructor(scene, opts) {
-      opts = opts || {};
-      this.radius = opts.radius || 1;
-      this.detail = opts.detail || 96;
-      this.scene = scene;
-
-      // fixed "settled" energy — no state machine, no transitions
-      var wiggleAmp = 0.035, wiggleSpeed = 0.35, breatheAmp = 0.13, breatheSpeed = 0.5;
-
-      var geometry = new THREE.SphereGeometry(this.radius, this.detail, this.detail);
-
-      this.uniforms = {
-        uTime:        { value: 0 },
-        uWiggleAmp:   { value: wiggleAmp },
-        uWiggleSpeed: { value: wiggleSpeed },
-        uBreatheAmp:  { value: breatheAmp },
-        uBreatheSpeed:{ value: breatheSpeed },
-        uCamPos:      { value: new THREE.Vector3() },
+    constructor(scene, opts={}) {
+      this.radius=opts.radius??1; this.detail=opts.detail??96; this.scene=scene; this.state='idle';
+      this.profiles={
+        idle: {wiggleAmp:0.035,wiggleSpeed:0.35,breatheAmp:0.13,breatheSpeed:0.5},
+        calm: {wiggleAmp:0.015,wiggleSpeed:0.18,breatheAmp:0.09,breatheSpeed:0.3},
+        alert:{wiggleAmp:0.07, wiggleSpeed:0.9, breatheAmp:0.17,breatheSpeed:1.3},
       };
-
-      var material = new THREE.ShaderMaterial({
-        uniforms: this.uniforms,
-        vertexShader: NeuralOrb.VERTEX,
-        fragmentShader: NeuralOrb.FRAGMENT,
-        transparent: true,
-        depthWrite: false,
-        side: THREE.FrontSide,
-        blending: THREE.NormalBlending,
+      const geo = new THREE.SphereGeometry(this.radius, this.detail, this.detail);
+      this.uniforms={
+        uTime:{value:0},uWiggleAmp:{value:this.profiles.idle.wiggleAmp},
+        uWiggleSpeed:{value:this.profiles.idle.wiggleSpeed},
+        uBreatheAmp:{value:this.profiles.idle.breatheAmp},
+        uBreatheSpeed:{value:this.profiles.idle.breatheSpeed},
+        uCamPos:{value:new THREE.Vector3()},
+      };
+      const mat = new THREE.ShaderMaterial({
+        uniforms:this.uniforms, vertexShader:NeuralOrb.VERTEX, fragmentShader:NeuralOrb.FRAGMENT,
+        transparent:true, depthWrite:false, side:THREE.FrontSide, blending:THREE.NormalBlending,
       });
-
-      this.mesh = new THREE.Mesh(geometry, material);
+      this.mesh = new THREE.Mesh(geo, mat);
       if (this.scene) this.scene.add(this.mesh);
     }
-
-    update(elapsed, camera) {
-      this.uniforms.uTime.value = elapsed;
-      if (camera) this.uniforms.uCamPos.value.copy(camera.position);
+    setState(name){
+      if (!this.profiles[name]) return; this.state=name;
+      const p=this.profiles[name], dur=600, start=performance.now();
+      const f={wiggleAmp:this.uniforms.uWiggleAmp.value,wiggleSpeed:this.uniforms.uWiggleSpeed.value,breatheAmp:this.uniforms.uBreatheAmp.value,breatheSpeed:this.uniforms.uBreatheSpeed.value};
+      const step=(t)=>{
+        const k=Math.min(1,(t-start)/dur);
+        const e=k<0.5?2*k*k:1-Math.pow(-2*k+2,2)/2;
+        this.uniforms.uWiggleAmp.value=f.wiggleAmp+(p.wiggleAmp-f.wiggleAmp)*e;
+        this.uniforms.uWiggleSpeed.value=f.wiggleSpeed+(p.wiggleSpeed-f.wiggleSpeed)*e;
+        this.uniforms.uBreatheAmp.value=f.breatheAmp+(p.breatheAmp-f.breatheAmp)*e;
+        this.uniforms.uBreatheSpeed.value=f.breatheSpeed+(p.breatheSpeed-f.breatheSpeed)*e;
+        if(k<1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
     }
+    update(t,cam){ this.uniforms.uTime.value=t; if(cam) this.uniforms.uCamPos.value.copy(cam.position); }
   }
 
-  NeuralOrb.VERTEX = `
-    uniform float uTime;
-    uniform float uWiggleAmp;
-    uniform float uWiggleSpeed;
-    uniform float uBreatheAmp;
-    uniform float uBreatheSpeed;
-
-    varying vec3 vNormal;
-    varying vec3 vWorldPos;
-    varying float vDisp;
-
-    vec3 mod289(vec3 x){ return x - floor(x * (1.0/289.0)) * 289.0; }
-    vec4 mod289(vec4 x){ return x - floor(x * (1.0/289.0)) * 289.0; }
-    vec4 permute(vec4 x){ return mod289(((x*34.0)+1.0)*x); }
-    vec4 taylorInvSqrt(vec4 r){ return 1.79284291400159 - 0.85373472095314 * r; }
-
+  NeuralOrb.VERTEX=`
+    uniform float uTime,uWiggleAmp,uWiggleSpeed,uBreatheAmp,uBreatheSpeed;
+    varying vec3 vNormal,vWorldPos; varying float vDisp;
+    vec3 mod289(vec3 x){return x-floor(x*(1./289.))*289.;}
+    vec4 mod289(vec4 x){return x-floor(x*(1./289.))*289.;}
+    vec4 permute(vec4 x){return mod289(((x*34.)+1.)*x);}
+    vec4 taylorInvSqrt(vec4 r){return 1.79284291400159-0.85373472095314*r;}
     float snoise(vec3 v){
-      const vec2 C = vec2(1.0/6.0, 1.0/3.0);
-      const vec4 D = vec4(0.0, 0.5, 1.0, 2.0);
-      vec3 i  = floor(v + dot(v, C.yyy));
-      vec3 x0 = v - i + dot(i, C.xxx);
-      vec3 g = step(x0.yzx, x0.xyz);
-      vec3 l = 1.0 - g;
-      vec3 i1 = min(g.xyz, l.zxy);
-      vec3 i2 = max(g.xyz, l.zxy);
-      vec3 x1 = x0 - i1 + C.xxx;
-      vec3 x2 = x0 - i2 + C.yyy;
-      vec3 x3 = x0 - D.yyy;
-      i = mod289(i);
-      vec4 p = permute(permute(permute(
-                i.z + vec4(0.0, i1.z, i2.z, 1.0))
-              + i.y + vec4(0.0, i1.y, i2.y, 1.0))
-              + i.x + vec4(0.0, i1.x, i2.x, 1.0));
-      float n_ = 0.142857142857;
-      vec3 ns = n_ * D.wyz - D.xzx;
-      vec4 j = p - 49.0 * floor(p * ns.z * ns.z);
-      vec4 x_ = floor(j * ns.z);
-      vec4 y_ = floor(j - 7.0 * x_);
-      vec4 x = x_ *ns.x + ns.yyyy;
-      vec4 y = y_ *ns.x + ns.yyyy;
-      vec4 h = 1.0 - abs(x) - abs(y);
-      vec4 b0 = vec4(x.xy, y.xy);
-      vec4 b1 = vec4(x.zw, y.zw);
-      vec4 s0 = floor(b0)*2.0 + 1.0;
-      vec4 s1 = floor(b1)*2.0 + 1.0;
-      vec4 sh = -step(h, vec4(0.0));
-      vec4 a0 = b0.xzyw + s0.xzyw*sh.xxyy;
-      vec4 a1 = b1.xzyw + s1.xzyw*sh.zzww;
-      vec3 p0 = vec3(a0.xy, h.x);
-      vec3 p1 = vec3(a0.zw, h.y);
-      vec3 p2 = vec3(a1.xy, h.z);
-      vec3 p3 = vec3(a1.zw, h.w);
-      vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2,p2), dot(p3,p3)));
-      p0 *= norm.x; p1 *= norm.y; p2 *= norm.z; p3 *= norm.w;
-      vec4 m = max(0.6 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);
-      m = m * m;
-      return 42.0 * dot(m*m, vec4(dot(p0,x0), dot(p1,x1), dot(p2,x2), dot(p3,x3)));
+      const vec2 C=vec2(1./6.,1./3.);const vec4 D=vec4(0.,.5,1.,2.);
+      vec3 i=floor(v+dot(v,C.yyy)),x0=v-i+dot(i,C.xxx);
+      vec3 g=step(x0.yzx,x0.xyz),l=1.-g,i1=min(g.xyz,l.zxy),i2=max(g.xyz,l.zxy);
+      vec3 x1=x0-i1+C.xxx,x2=x0-i2+C.yyy,x3=x0-D.yyy;
+      i=mod289(i);
+      vec4 p=permute(permute(permute(i.z+vec4(0.,i1.z,i2.z,1.))+i.y+vec4(0.,i1.y,i2.y,1.))+i.x+vec4(0.,i1.x,i2.x,1.));
+      vec3 ns=0.142857142857*D.wyz-D.xzx;
+      vec4 j=p-49.*floor(p*ns.z*ns.z),x_=floor(j*ns.z),y_=floor(j-7.*x_);
+      vec4 x=x_*ns.x+ns.yyyy,y=y_*ns.x+ns.yyyy,h=1.-abs(x)-abs(y);
+      vec4 b0=vec4(x.xy,y.xy),b1=vec4(x.zw,y.zw);
+      vec4 s0=floor(b0)*2.+1.,s1=floor(b1)*2.+1.,sh=-step(h,vec4(0.));
+      vec4 a0=b0.xzyw+s0.xzyw*sh.xxyy,a1=b1.xzyw+s1.xzyw*sh.zzww;
+      vec3 p0=vec3(a0.xy,h.x),p1=vec3(a0.zw,h.y),p2=vec3(a1.xy,h.z),p3=vec3(a1.zw,h.w);
+      vec4 norm=taylorInvSqrt(vec4(dot(p0,p0),dot(p1,p1),dot(p2,p2),dot(p3,p3)));
+      p0*=norm.x;p1*=norm.y;p2*=norm.z;p3*=norm.w;
+      vec4 m=max(.6-vec4(dot(x0,x0),dot(x1,x1),dot(x2,x2),dot(x3,x3)),0.);m=m*m;
+      return 42.*dot(m*m,vec4(dot(p0,x0),dot(p1,x1),dot(p2,x2),dot(p3,x3)));
     }
-
     vec3 displace(vec3 pos){
-      float breathe = 1.0 + sin(uTime * uBreatheSpeed) * uBreatheAmp;
-      float n = snoise(pos * 1.6 + vec3(0.0, 0.0, uTime * uWiggleSpeed));
-      float wiggle = n * uWiggleAmp;
-      return pos * breathe + normalize(pos) * wiggle;
+      float b=1.+sin(uTime*uBreatheSpeed)*uBreatheAmp;
+      return pos*b+normalize(pos)*snoise(pos*1.6+vec3(0.,0.,uTime*uWiggleSpeed))*uWiggleAmp;
     }
-
     void main(){
-      vec3 displaced = displace(position);
-
-      vec3 up = abs(normal.y) < 0.99 ? vec3(0.0, 1.0, 0.0) : vec3(1.0, 0.0, 0.0);
-      vec3 tangent = normalize(cross(normal, up));
-      vec3 bitangent = normalize(cross(normal, tangent));
-      float eps = 0.02;
-      vec3 posT = displace(position + tangent * eps);
-      vec3 posB = displace(position + bitangent * eps);
-
-      vec3 bumpedNormal = normalize(cross(posT - displaced, posB - displaced));
-      if (dot(bumpedNormal, normal) < 0.0) bumpedNormal = -bumpedNormal;
-
-      vDisp = snoise(position * 1.6 + vec3(0.0, 0.0, uTime * uWiggleSpeed));
-      vNormal = normalize(normalMatrix * bumpedNormal);
-
-      vec4 worldPos = modelMatrix * vec4(displaced, 1.0);
-      vWorldPos = worldPos.xyz;
-
-      gl_Position = projectionMatrix * viewMatrix * worldPos;
+      vec3 d=displace(position);
+      vec3 up=abs(normal.y)<.99?vec3(0.,1.,0.):vec3(1.,0.,0.);
+      vec3 T=normalize(cross(normal,up)),B=normalize(cross(normal,T));
+      float eps=.02;
+      vec3 bN=normalize(cross(displace(position+T*eps)-d,displace(position+B*eps)-d));
+      if(dot(bN,normal)<0.)bN=-bN;
+      vDisp=snoise(position*1.6+vec3(0.,0.,uTime*uWiggleSpeed));
+      vNormal=normalize(normalMatrix*bN);
+      vec4 wp=modelMatrix*vec4(d,1.);vWorldPos=wp.xyz;
+      gl_Position=projectionMatrix*viewMatrix*wp;
     }
   `;
 
-  NeuralOrb.FRAGMENT = `
-    uniform vec3 uCamPos;
-    uniform float uTime;
+  NeuralOrb.FRAGMENT=`
+  uniform vec3 uCamPos;
+  uniform float uTime;
 
-    varying vec3 vNormal;
-    varying vec3 vWorldPos;
-    varying float vDisp;
+  varying vec3 vNormal;
+  varying vec3 vWorldPos;
+  varying float vDisp;
 
-    vec3 iridescent(float t){
-      // biased toward violet/purple (site accent ~#7c5cbf) with blue/pink secondary
-      vec3 a = vec3(0.50, 0.42, 0.68);
-      vec3 b = vec3(0.30, 0.22, 0.32);
-      vec3 c = vec3(1.0, 1.0, 0.9);
-      vec3 d = vec3(0.55, 0.65, 0.80);
-      return a + b * cos(6.28318 * (c * t + d));
-    }
+  vec3 iridescent(float t){
+    vec3 a = vec3(0.50, 0.42, 0.68);
+    vec3 b = vec3(0.30, 0.22, 0.32);
+    vec3 c = vec3(1.0, 1.0, 0.9);
+    vec3 d = vec3(0.55, 0.65, 0.80);
+    return a + b * cos(6.28318 * (c * t + d));
+  }
 
-    vec3 envSample(vec3 dir){
-      float t = clamp(dir.y * 0.5 + 0.5, 0.0, 1.0);
-      vec3 horizon = vec3(0.05, 0.04, 0.09);
-      vec3 zenith  = vec3(0.52, 0.44, 0.72);
-      vec3 base = mix(horizon, zenith, pow(t, 1.5));
-      float softbox = smoothstep(0.7, 1.0, dir.y) * 0.5;
-      return base + softbox;
-    }
+  vec3 envSample(vec3 dir){
+    float t = clamp(dir.y * 0.5 + 0.5, 0.0, 1.0);
+    vec3 horizon = vec3(0.05, 0.04, 0.09);
+    vec3 zenith  = vec3(0.52, 0.44, 0.72);
+    vec3 base = mix(horizon, zenith, pow(t, 1.5));
+    float softbox = smoothstep(0.7, 1.0, dir.y) * 0.5;
+    return base + softbox;
+  }
 
-    void main(){
-      vec3 viewDir = normalize(uCamPos - vWorldPos);
-      vec3 N = normalize(vNormal);
-      float fresnel = pow(1.0 - max(dot(N, viewDir), 0.0), 2.4);
+  void main(){
+    vec3 viewDir = normalize(uCamPos - vWorldPos);
+    vec3 N = normalize(vNormal);
+    float fresnel = pow(1.0 - max(dot(N, viewDir), 0.0), 2.4);
 
-      vec3 lightA = normalize(vec3(0.6, 0.9, 0.5));
-      vec3 lightB = normalize(vec3(-0.6, -0.4, 0.4));
+    vec3 lightA = normalize(vec3(0.6, 0.9, 0.5));
+    vec3 lightB = normalize(vec3(-0.6, -0.4, 0.4));
 
-      float diff = max(dot(N, lightA), 0.0) * 0.5 + 0.5;
-      vec3 halfA = normalize(lightA + viewDir);
-      float specA = pow(max(dot(N, halfA), 0.0), 70.0);
-      vec3 halfB = normalize(lightB + viewDir);
-      float specB = pow(max(dot(N, halfB), 0.0), 100.0);
+    float diff = max(dot(N, lightA), 0.0) * 0.5 + 0.5;
+    vec3 halfA = normalize(lightA + viewDir);
+    float specA = pow(max(dot(N, halfA), 0.0), 70.0);
+    vec3 halfB = normalize(lightB + viewDir);
+    float specB = pow(max(dot(N, halfB), 0.0), 100.0);
 
-      vec3 refl = reflect(-viewDir, N);
-      vec3 envColor = envSample(refl);
+    vec3 refl = reflect(-viewDir, N);
+    vec3 envColor = envSample(refl);
 
-      float hueT = fresnel * 0.7 + vDisp * 0.4 + uTime * 0.02;
-      vec3 film = iridescent(hueT);
+    float hueT = fresnel * 0.7 + vDisp * 0.4 + uTime * 0.02;
+    vec3 film = iridescent(hueT);
 
-      // soft violet rim glow layered on top of the fresnel edge, tying
-      // the orb's color directly to the site's #7c5cbf accent
-      vec3 accentPurple = vec3(0.486, 0.361, 0.749);
-      vec3 rimGlow = accentPurple * pow(fresnel, 1.8) * 0.55;
+    vec3 accentPurple = vec3(0.486, 0.361, 0.749);
+    vec3 rimGlow = accentPurple * pow(fresnel, 1.8) * 0.55;
 
-      vec3 base = mix(vec3(0.02, 0.015, 0.035), envColor, 0.5);
-      vec3 color = mix(base, film, fresnel * 0.85);
-      color += rimGlow;
-      color *= diff;
-      color += vec3(1.0) * specA * 0.85;
-      color += vec3(0.82, 0.78, 1.0) * specB * 0.45;
+    vec3 base = mix(vec3(0.02, 0.015, 0.035), envColor, 0.5);
+    vec3 color = mix(base, film, fresnel * 0.85);
+    color += rimGlow;
+    color *= diff;
+    color += vec3(1.0) * specA * 0.85;
+    color += vec3(0.82, 0.78, 1.0) * specB * 0.45;
 
-      float alpha = clamp(fresnel * 0.85 + 0.12 + specA * 0.4, 0.0, 0.92);
+    float alpha = clamp(fresnel * 0.85 + 0.12 + specA * 0.4, 0.0, 0.92);
 
-      gl_FragColor = vec4(color, alpha);
-    }
-  `;
+    gl_FragColor = vec4(color, alpha);
+  }
+`;
 
-  // ── mount into the hero card ──
-  var card = document.getElementById('hero-orb-card');
-  var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+  /* ── Renderer setup ── */
+  var renderer, scene, camera, orbInst;
+  try {
+    renderer = new THREE.WebGLRenderer({ canvas, antialias:true, alpha:true });
+  } catch(e) { return; } // no WebGL — CSS orb remains
+
+  // WebGL confirmed — swap visuals
+  canvas.style.display = 'block';
+  if (cssOrb) cssOrb.style.display = 'none';
+
+  // Read dimensions after layout so clamp() has resolved
+  var w = canvas.getBoundingClientRect().width  || 400;
+  var h = canvas.getBoundingClientRect().height || 400;
+  if (w < 10) { w = 400; h = 400; } // safety fallback
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(w, h, false);
 
-  var scene = new THREE.Scene();
-  var camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
-  camera.position.set(0, 0, 3.4);
+  scene  = new THREE.Scene();
+  camera = new THREE.PerspectiveCamera(45, w/h, 0.1, 100);
+  camera.position.set(0, 0, 3.2);
 
-  var orb = new NeuralOrb(scene, { radius: 1 });
+  orbInst = new NeuralOrb(scene, { radius:1 });
 
-  function resize(){
-    var w = canvas.clientWidth || card.clientWidth;
-    var h = canvas.clientHeight || card.clientHeight;
-    if (!w || !h) return;
-    renderer.setSize(w, h, false);
-    camera.aspect = w / h;
-    camera.updateProjectionMatrix();
+  // Faint star field
+  var sg=new THREE.BufferGeometry(), sp=new Float32Array(180*3);
+  for(var i=0;i<180;i++){sp[i*3]=(Math.random()-.5)*12;sp[i*3+1]=(Math.random()-.5)*12;sp[i*3+2]=(Math.random()-.5)*12-3;}
+  sg.setAttribute('position',new THREE.BufferAttribute(sp,3));
+  scene.add(new THREE.Points(sg,new THREE.PointsMaterial({color:0x8fa3ff,size:0.018,transparent:true,opacity:0.30})));
+
+  window.addEventListener('resize', function(){
+    var nw=canvas.clientWidth||260, nh=canvas.clientHeight||260;
+    renderer.setSize(nw,nh,false);
+    camera.aspect=nw/nh; camera.updateProjectionMatrix();
+  });
+
+  /* ── State sequence — same as CSS version ── */
+  var sequence=[
+    {state:'idle', cls:'',         osi:24, sig:'nominal',       bar:24,  bc:'linear-gradient(90deg,rgba(100,165,240,.7),rgba(168,130,255,.95))'},
+    {state:'idle', cls:'',         osi:41, sig:'building',      bar:41,  bc:'linear-gradient(90deg,rgba(100,165,240,.7),rgba(168,130,255,.95))'},
+    {state:'alert',cls:'is-alert', osi:63, sig:'loop detected', bar:63,  bc:'linear-gradient(90deg,rgba(240,80,120,.7),rgba(255,100,150,.95))'},
+    {state:'calm', cls:'is-calm',  osi:11, sig:'recovering',    bar:11,  bc:'linear-gradient(90deg,rgba(60,200,190,.7),rgba(80,220,200,.95))'},
+  ];
+  var idx=0, target=sequence[0].osi;
+
+  function applyStage(s){
+    orbInst.setState(s.state);
+    if(card)    card.className='hero-orb-card '+s.cls;
+    if(elState) elState.textContent=s.state;
+    if(elSig)   elSig.textContent=s.sig;
+    if(elBar){  elBar.style.width=s.bar+'%'; elBar.style.background=s.bc; }
+    target=s.osi;
   }
-  resize();
-  window.addEventListener('resize', resize);
-  if (window.ResizeObserver && card) {
-    new ResizeObserver(resize).observe(card);
-  }
+  applyStage(sequence[0]);
+  setInterval(function(){ idx=(idx+1)%sequence.length; applyStage(sequence[idx]); }, 8000);
 
-  var clock = new THREE.Clock();
+  /* ── Render loop ── */
+  var clock=new THREE.Clock(), t0=Date.now();
   function animate(){
     requestAnimationFrame(animate);
-    var t = clock.getElapsedTime();
-    orb.mesh.rotation.y = t * 0.1;
-    orb.mesh.rotation.x = Math.sin(t * 0.15) * 0.06;
-    orb.update(t, camera);
-    renderer.render(scene, camera);
+    var t=clock.getElapsedTime();
+    var drift=Math.round(Math.sin((Date.now()-t0)/1000*.45)*3+Math.cos((Date.now()-t0)/1000*.28)*2);
+    if(elOsi) elOsi.textContent=Math.max(0,target+drift);
+    orbInst.mesh.rotation.y=t*.08;
+    orbInst.mesh.rotation.x=Math.sin(t*.15)*.05;
+    orbInst.update(t,camera);
+    renderer.render(scene,camera);
   }
   animate();
 })();
